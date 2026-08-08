@@ -1,0 +1,11 @@
+venv
+__pycache__
+
+# Pycharm-generated folder.
+.idea
+
+# The default logfile.
+log.txt
+
+# The default storage file.
+storage.txt

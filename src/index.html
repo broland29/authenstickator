@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>USB2FA</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <h1>USB2FA</h1>
+
+    <hr>
+
+    <p>Enter a new secret:</p>
+    <label for="secretInput">Secret</label>
+    <input id="secretInput" type="text">
+    <br><br>
+    <label for="nameInput">Name</label>
+    <input id="nameInput" type="text">
+    <br><br>
+    <button id="addSecretButton" onclick="addSecretHandler()">Add</button>
+
+    <p id="errorParagraph" class="error-message"></p>
+
+    <hr>
+
+    <div id="rowsDiv"></div>
+
+    <script>
+      let CONSTANTS = null;
+      let timerIntervalId = null;
+
+      // Called upon startup ready.
+      window.addEventListener("pywebviewready", async function () {
+        await loadConstantsHandler();
+        await addAllSecretsHandler();
+        startUpdateTimers();
+      });
+
+      function startUpdateTimers() {
+        if (timerIntervalId !== null) {
+          return;
+        }
+        timerIntervalId = setInterval(updateTimers, 1000);
+      }
+
+      function updateTimers() {
+        const rowElements = document.querySelectorAll(".rowDiv");
+        for (const rowElement of rowElements) {
+          const expiresAt = Number(rowElement.dataset.expiresAt);
+          const remainingMs = expiresAt - Date.now();
+
+          if (remainingMs <= 0) {
+            promoteNextCode(rowElement);
+            refreshCodesAndExpirationTimes(rowElement);
+            continue;
+          }
+          // frontend mathematics
+          rowElement.querySelector(".remainingTimeAnchor").textContent = Math.ceil(remainingMs / 1000);
+        }
+      }
+
+      function promoteNextCode(row) {
+        row.dataset.expiresAt = row.dataset.nextExpiresAt;
+        row.querySelector(".currentCodeAnchor").textContent = row.dataset.nextCode;
+      }
+
+      async function refreshCodesAndExpirationTimes(rowElement) {
+        const name = rowElement.dataset.name;
+        const data = await callApi(() => window.pywebview.api.get_codes_and_expiration_times(name))
+        if (data === null) {
+          return;
+        }
+        rowElement.dataset.currentCode = data.current_code;
+        rowElement.dataset.nextCode = data.next_code;
+        rowElement.dataset.expiresAt = data.expires_at;
+        rowElement.dataset.nextExpiresAt = data.next_expires_at;
+      }
+
+      /**
+       * Wrapper for calling an API function.
+       */
+      async function callApi(apiFunction) {
+        clearError();
+
+        const result = await apiFunction();
+
+        if (result.status === CONSTANTS.STATUS_ERROR) {
+          showError(result.error_message);
+          return null;
+        }
+
+        return result.data;
+      }
+
+      async function loadConstantsHandler() {
+        CONSTANTS = await window.pywebview.api.get_constants_handler();
+      }
+
+      /**
+       * Load all secrets.
+       */
+      async function addAllSecretsHandler() {
+        const results = await window.pywebview.api.add_all_secrets_handler();
+        for (const result of results) {
+          await addRow(data.name, data.current_code, data.next_code, data.expires_at);
+        }
+      }
+
+      /**
+       * Add a secret to the storage, get data, and display it.
+       */
+      async function addSecretHandler() {
+        const secretValue = document.getElementById("secretInput").value;
+        const nameValue = document.getElementById("nameInput").value;
+
+        const data = await callApi(() => window.pywebview.api.add_secret_handler(secretValue, nameValue))
+        if (data === null) {
+          return;
+        }
+        await addRow(data.name, data.current_code, data.next_code, data.expires_at, data.next_expires_at);
+      }
+
+      /**
+       * Add a rowDiv (containing name, code and time remaining related to a secret) to rowsDiv.
+       */
+      async function addRow(name, currentCode, nextCode, expiresAt, nextExpiresAt) {
+        const rowsElement = document.getElementById("rowsDiv");
+
+        const rowElement = document.createElement("div");
+        rowElement.className = "rowDiv";
+        rowElement.id = name + "RowDiv";
+
+        // needed for removal
+        rowElement.dataset.name = name;
+
+        // needed for instant next code retrieval
+        rowElement.dataset.currentCode = currentCode;
+        rowElement.dataset.nextCode = nextCode;
+        rowElement.dataset.expiresAt = expiresAt;
+        rowElement.dataset.nextExpiresAt = nextExpiresAt;
+
+        const remainingMs = expiresAt - Date.now();
+        const remainingS = Math.ceil(remainingMs / 1000);
+
+        const buttonId = name + "RemoveSecretButton";
+        rowElement.innerHTML = `
+            <hr>
+            <p><a>Name: </a> <a>${name}</a></p>
+            <p><a>Code: </a> <a class = "currentCodeAnchor">${currentCode}</a></p>
+            <p><a>Remaining time: </a> <a class = "remainingTimeAnchor">${remainingS}</a></p>
+            <button id = "${buttonId}" onclick="removeSecretHandler(this)">Remove</button>
+            <hr>
+        `
+        rowsElement.appendChild(rowElement);
+      }
+
+      function showError(errorMessage) {
+        document.getElementById("errorParagraph").textContent = errorMessage;
+      }
+
+      function clearError() {
+        document.getElementById("errorParagraph").textContent = "";
+      }
+
+      /**
+       * Remove the rowDiv containing buttonElement.
+       */
+      async function removeSecretHandler(buttonElement) {
+        const rowElement = buttonElement.closest(".rowDiv");
+        const name = rowElement.dataset.name;
+
+        await window.pywebview.api.remove_secret_handler(name);
+
+        rowElement.remove();
+      }
+    </script>
+  </body>
+</html>
