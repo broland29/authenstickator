@@ -9,3 +9,6 @@ log.txt
 
 # The default storage file.
 storage.txt
+
+# The FAPI config folder, downloaded and set up automatically when ran for the first time.
+src/tpm/fapi-config/*

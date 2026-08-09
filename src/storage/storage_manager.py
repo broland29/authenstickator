@@ -2,7 +2,7 @@ import json
 import os
 
 from src.config.config_manager import ConfigManager
-from src.logging.logger_manager import LoggerManager
+from src.logger.logger_manager import LoggerManager
 from src.storage.aes_encryptor import AESEncryptor
 from src.tpm.tpm import TPM
 

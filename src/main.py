@@ -1,7 +1,7 @@
 from typing import Final
 
 from src.config.config_manager import ConfigManager
-from src.logging.logger_manager import LoggerManager
+from src.logger.logger_manager import LoggerManager
 from src.storage import storage_manager
 from src.storage.storage_manager import StorageManager
 from src.totp.totpapp import TOTPApp

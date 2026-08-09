@@ -3,7 +3,7 @@ import os
 from typing import Final, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.logging.logger_manager import LoggerManager
+    from src.logger.logger_manager import LoggerManager
 
 
 """
@@ -18,7 +18,7 @@ class ConfigManager:
         "webview" : {
             "debug": True,
         },
-        "logging" : {
+        "logger" : {
             "log_level": "INFO",
             "log_file": "log.txt"
         },

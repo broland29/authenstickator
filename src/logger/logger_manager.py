@@ -14,8 +14,8 @@ class LoggerManager:
             return cls.instance
 
         config = ConfigManager()
-        log_level = config.get("logging.log_level")
-        log_file_path = config.get("logging.log_file_path")
+        log_level = config.get("logger.log_level")
+        log_file_path = config.get("logger.log_file_path")
 
         logger = logging.getLogger()
         logger.setLevel(log_level)

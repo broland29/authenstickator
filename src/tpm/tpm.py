@@ -1,6 +1,6 @@
 import platform
 
-from src.logging.logger_manager import LoggerManager
+from src.logger.logger_manager import LoggerManager
 from src.tpm.linux_tpm import LinuxTPM
 
 """
