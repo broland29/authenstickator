@@ -3,7 +3,6 @@ import os
 import socket
 import subprocess
 import time
-from operator import truediv
 from pathlib import Path
 from typing import Final
 from typing_extensions import override
@@ -23,16 +22,15 @@ class LinuxTPM(AbstractTPM):
     TPM has to be set up by the user. The config is usually at path /etc/tpm2-tss/fapi-config.json
     """
 
-    KEY_PATH: Final[str] = "HS/SRK/usb2fakey"
+    KEY_PATH: Final[str] = "HS/SRK/authenstickator"
     """Encryption and decryption uses a key, which is identified by this path."""
 
     def __init__(self):
         self.config = ConfigManager()
         self.logger = LoggerManager()
         self.setup_fapi()
-        with FAPI() as fapi:
-            fapi.set_auth_callback(self.auth_callback)
-            fapi.provision(is_provisioned_ok=True)
+        self.provision_fapi()
+        self.init_key()
 
 
     def setup_fapi(self):
@@ -55,7 +53,9 @@ class LinuxTPM(AbstractTPM):
 
         self.start_virtual_tpm()
 
+        # Set the environment variable so that the session picks up the right FAPI configuration.
         os.environ["TSS2_FAPICONF"] = str(config_file)
+
         self.logger.info(f"FAPI setup complete.")
 
 
@@ -131,6 +131,20 @@ class LinuxTPM(AbstractTPM):
             raise RuntimeError(f"Could connect to localhost port {tpm_port} after waiting {seconds_to_wait} seconds, considering virtual TPM startup failed.")
 
 
+    def provision_fapi(self):
+        """
+        Even though is_provisioned_ok is set to true, the underlying C library will throw an error message in the logs if
+        the TPM is already provisioned. But no exception is raised, and execution happens as expected. Checking wether
+        TPM is provisioned beforehand is not worth the hassle:
+        - Could check if system_dir was created, but that is not a guarantee.
+        - Could check if the path "/P_RSA2048SHA256/HS/SRK" exists in the result of fapi.list(), but that needs a fapi
+        instance, which fails if not provisioned => does not take us any further.
+        """
+        with FAPI() as fapi:
+            fapi.set_auth_callback(self.auth_callback)
+            fapi.provision(is_provisioned_ok=True)
+
+
     def is_tpm_on(self, tpm_port: int) -> bool:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             if s.connect_ex(("localhost", tpm_port)) == 0:  # 0 means success... wrapper for C function
@@ -143,9 +157,10 @@ class LinuxTPM(AbstractTPM):
         print(path)
         return b""
 
-
-    @override
-    def encrypt(self, plaintext: str) -> bytes:
+    def init_key(self):
+        """
+        Similarly to provision, this will throw an error message if the key already exists, but that affects only logs.
+        """
         with FAPI() as fapi:
             fapi.set_auth_callback(self.auth_callback)
             fapi.create_key(
@@ -153,6 +168,11 @@ class LinuxTPM(AbstractTPM):
                 type_ = "decrypt",
                 exists_ok = True
             )
+
+    @override
+    def encrypt(self, plaintext: str) -> bytes:
+        with FAPI() as fapi:
+            fapi.set_auth_callback(self.auth_callback)
             return fapi.encrypt(self.KEY_PATH, plaintext.encode("utf-8"))
 
 
