@@ -1,8 +1,10 @@
 from Crypto.Cipher import AES
 
-from src.storage.abstract_encryptor import AbstractEncryptor
+from encryptor.abstract_encryptor import AbstractEncryptor
+
 
 class AESEncryptor(AbstractEncryptor):
+
     def __init__(self, key: str):
         self.key = key
 
@@ -22,5 +24,5 @@ class AESEncryptor(AbstractEncryptor):
         tag = ciphertext[16:32]
         actual_ciphertext = ciphertext[32:]
 
-        cipher = AES.new(self.key.encode(), AES.MODE_EAX, nonce = nonce)
+        cipher = AES.new(self.key.encode(), AES.MODE_EAX, nonce=nonce)
         return cipher.decrypt_and_verify(actual_ciphertext, tag).decode()

@@ -1,10 +1,12 @@
-from src.tpm.abstract_tpm import AbstractTPM
 from typing_extensions import override
 
-"""
-TODO: implement in v0.2.
-"""
+from src.tpm.abstract_tpm import AbstractTPM
+
+
 class WindowsTPM(AbstractTPM):
+    """
+    TODO: implement in v0.2.
+    """
 
     @override
     def encrypt(self, string: str) -> str:

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 class AbstractEncryptor(ABC):
+
     @abstractmethod
     def encrypt(self, plaintext: str) -> bytes:
         pass

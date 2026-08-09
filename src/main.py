@@ -1,14 +1,13 @@
 from typing import Final
 
-from src.config.config_manager import ConfigManager
-from src.logger.logger_manager import LoggerManager
-from src.storage import storage_manager
-from src.storage.storage_manager import StorageManager
-from src.totp.totpapp import TOTPApp
 import webview
 
-class Main:
+from src.config.config_manager import ConfigManager
+from src.logger.logger_manager import LoggerManager
+from src.totp.totpapp import TOTPApp
 
+
+class Main:
     STATUS_SUCCESS: Final[str] = "success"
     STATUS_ERROR: Final[str] = "error"
 
@@ -34,7 +33,7 @@ class Main:
         secrets = self.totp.get_all_secrets()
         codes_and_remaining_times = []
         # TODO
-        #for secret in secrets.values():
+        # for secret in secrets.values():
         #    codes_and_remaining_times.append(self.get_codes_and_expiration_times(name))
         return codes_and_remaining_times
 
@@ -72,18 +71,19 @@ class Main:
         self.totp.remove_secret(name)
 
     @staticmethod
-    def _success(data = None):
+    def _success(data=None):
         return {
             "status": "success",
             "data": data
         }
 
     @staticmethod
-    def _error(error_message = None):
+    def _error(error_message=None):
         return {
             "status": "error",
             "error_message": error_message
         }
+
 
 if __name__ == "__main__":
     Main().main()

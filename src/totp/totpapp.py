@@ -1,9 +1,7 @@
 import base64
-import re
-import time
+import datetime
 
 import pyotp
-import datetime
 
 from src.storage.storage_manager import StorageManager
 
@@ -12,10 +10,10 @@ class TOTPApp:
     def __init__(self):
         self.storage = StorageManager()
 
-    """
-    I let JavaScript calculate the remaining time, I just give the expiration time (in milliseconds, since JS Date.now() is milliseconds as well).
-    """
     def get_codes_and_expiration_times(self, name) -> tuple[str, str, float, float] | None:
+        """
+        I let JavaScript calculate the remaining time, I just give the expiration time (in milliseconds, since JS Date.now() is milliseconds as well).
+        """
         secret = self.storage.get_secret(name)
         if secret is None:
             return None
@@ -51,7 +49,7 @@ class TOTPApp:
             padding_needed = len(secret) % 8
             if padding_needed != 0:  # for 0, would pad with 8, making code incorrect :)
                 secret += "=" * (8 - padding_needed)  # TOTP secrets are padded with = for size usable for base32
-            base64.b32decode(secret, casefold = True)
+            base64.b32decode(secret, casefold=True)
         except Exception:
             return False
 

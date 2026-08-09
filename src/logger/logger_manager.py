@@ -3,10 +3,11 @@ from logging.handlers import RotatingFileHandler
 
 from src.config.config_manager import ConfigManager
 
-"""
-Singleton logger for the whole app. Usual levels: INFO, WARNING, ERROR.
-"""
+
 class LoggerManager:
+    """
+    Singleton logger for the whole app. Usual levels: INFO, WARNING, ERROR.
+    """
     instance = None
 
     def __new__(cls):
@@ -29,7 +30,7 @@ class LoggerManager:
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
 
-        file_handler = RotatingFileHandler(log_file_path, maxBytes = 1044 * 1024)
+        file_handler = RotatingFileHandler(log_file_path, maxBytes=1044 * 1024)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 

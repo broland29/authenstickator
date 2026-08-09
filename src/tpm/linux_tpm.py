@@ -5,15 +5,15 @@ import subprocess
 import time
 from pathlib import Path
 from typing import Final
-from typing_extensions import override
-
-from tpm2_pytss import FAPI
 
 import requests
+from tpm2_pytss import FAPI
+from typing_extensions import override
 
 from src.config.config_manager import ConfigManager
 from src.logger.logger_manager import LoggerManager
 from src.tpm.abstract_tpm import AbstractTPM
+
 
 class LinuxTPM(AbstractTPM):
     """
@@ -31,7 +31,6 @@ class LinuxTPM(AbstractTPM):
         self.setup_fapi()
         self.provision_fapi()
         self.init_key()
-
 
     def setup_fapi(self):
         base_dir = Path(__file__).parent.absolute()
@@ -58,7 +57,6 @@ class LinuxTPM(AbstractTPM):
 
         self.logger.info(f"FAPI setup complete.")
 
-
     def download_profile_file(self, profile_file_path):
         if profile_file_path.exists():
             self.logger.info(f"FAPI profile file already exists at {profile_file_path}, skipping download.")
@@ -66,14 +64,13 @@ class LinuxTPM(AbstractTPM):
         try:
             url = self.config.get('tpm.fapi_profile_url')
             self.logger.info(f"Downloading FAPI profile file from {url}")
-            response = requests.get(url, timeout = 10)
+            response = requests.get(url, timeout=10)
             response.raise_for_status()
             with open(profile_file_path, "w") as f:
                 f.write(response.text)
         except Exception as e:
             self.logger.error(f"Failed to download FAPI profile.")
             raise e
-
 
     def create_config_file(self, config_file, profile_dir, user_dir, system_dir, fapi_dir):
         if config_file.exists():
@@ -97,7 +94,6 @@ class LinuxTPM(AbstractTPM):
 
         with open(config_file, "w") as f:
             json.dump(config_data, f, indent=4)
-
 
     def start_virtual_tpm(self):
         if not self.config.get("tpm.virtualized"):
@@ -128,8 +124,8 @@ class LinuxTPM(AbstractTPM):
         subprocess.Popen(command)
         time.sleep(seconds_to_wait)
         if not self.is_tpm_on(tpm_port):
-            raise RuntimeError(f"Could connect to localhost port {tpm_port} after waiting {seconds_to_wait} seconds, considering virtual TPM startup failed.")
-
+            raise RuntimeError(
+                f"Could connect to localhost port {tpm_port} after waiting {seconds_to_wait} seconds, considering virtual TPM startup failed.")
 
     def provision_fapi(self):
         """
@@ -144,13 +140,11 @@ class LinuxTPM(AbstractTPM):
             fapi.set_auth_callback(self.auth_callback)
             fapi.provision(is_provisioned_ok=True)
 
-
     def is_tpm_on(self, tpm_port: int) -> bool:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             if s.connect_ex(("localhost", tpm_port)) == 0:  # 0 means success... wrapper for C function
                 return True
         return False
-
 
     def auth_callback(self, path, description, user_data=None):
         """FAPI"""
@@ -164,9 +158,9 @@ class LinuxTPM(AbstractTPM):
         with FAPI() as fapi:
             fapi.set_auth_callback(self.auth_callback)
             fapi.create_key(
-                path = self.KEY_PATH,
-                type_ = "decrypt",
-                exists_ok = True
+                path=self.KEY_PATH,
+                type_="decrypt",
+                exists_ok=True
             )
 
     @override
@@ -174,7 +168,6 @@ class LinuxTPM(AbstractTPM):
         with FAPI() as fapi:
             fapi.set_auth_callback(self.auth_callback)
             return fapi.encrypt(self.KEY_PATH, plaintext.encode("utf-8"))
-
 
     @override
     def decrypt(self, ciphertext: bytes) -> str:

@@ -3,10 +3,11 @@ import platform
 from src.logger.logger_manager import LoggerManager
 from src.tpm.linux_tpm import LinuxTPM
 
-"""
-Picks the right TPM interface for the current platform.
-"""
+
 class TPM:
+    """
+    Picks the right TPM interface for the current platform.
+    """
     instance = None
     logger = LoggerManager()
 
