@@ -8,8 +8,8 @@ from tpm2_pytss import FAPI
 
 import requests
 
-from config.config_manager import ConfigManager
-from logger.logger_manager import LoggerManager
+from src.config.config_manager import ConfigManager
+from src.logger.logger_manager import LoggerManager
 from src.tpm.abstract_tpm import AbstractTPM
 
 class LinuxTPM(AbstractTPM):
