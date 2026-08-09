@@ -33,12 +33,16 @@ class LoggerManager:
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
-        # Pywebview has its own logger; without the following lines, logs will be duplicated (if pywebview runs in debug mode).
-        pywebview_logger = logging.getLogger("pywebview")
-        pywebview_logger.handlers.clear()
-        pywebview_logger.propagate = True
-
         logger.info("Logger configured. Starting the application. ^.^")
 
         cls.instance = logger
         return logger
+
+    @staticmethod
+    def disable_pywebview_logger():
+        """
+        Pywebview has its own logger; without the following lines, logs will be duplicated (if pywebview runs in debug mode).
+        """
+        pywebview_logger = logging.getLogger("pywebview")
+        pywebview_logger.handlers.clear()
+        pywebview_logger.propagate = True

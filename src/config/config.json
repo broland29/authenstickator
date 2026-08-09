@@ -7,6 +7,9 @@
         "enabled": true,
         "virtualized": true,
         "virtualized_tpm_path": "/tmp/vtpm",
+        "virtualized_tpm_port": 2321,
+        "virtualized_tpm_ctrl_port": 2322,
+        "virtualized_tpm_startup_seconds": 1,
         "fapi_profile_name": "P_RSA2048SHA256",
         "fapi_profile_file": "P_RSA2048SHA256.json",
         "fapi_profile_url": "https://raw.githubusercontent.com/tpm2-software/tpm2-tss/3.2.0/dist/fapi-profiles/P_RSA2048SHA256.json"

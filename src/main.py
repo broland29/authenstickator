@@ -20,17 +20,8 @@ class Main:
 
     def main(self):
         webview.create_window("usb2fa", "index.html", js_api=self)
+        LoggerManager.disable_pywebview_logger()
         webview.start(debug=True)
-
-        """
-        tpm_interface = TPMInterface()
-
-        plaintext = "hello"
-        ciphertext = tpm_interface.encrypt(plaintext)
-        print(ciphertext)
-        plaintext = tpm_interface.decrypt(ciphertext)
-        print(plaintext)
-        """
 
     def get_constants_handler(self) -> dict:
         return {

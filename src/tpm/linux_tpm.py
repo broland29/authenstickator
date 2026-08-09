@@ -1,5 +1,9 @@
 import json
 import os
+import socket
+import subprocess
+import time
+from operator import truediv
 from pathlib import Path
 from typing import Final
 from typing_extensions import override
@@ -49,7 +53,7 @@ class LinuxTPM(AbstractTPM):
         config_file = fapi_dir / "fapi-config.json"
         self.create_config_file(config_file, profile_dir, user_dir, system_dir, fapi_dir)
 
-        #self.start_virtual_tpm()
+        self.start_virtual_tpm()
 
         os.environ["TSS2_FAPICONF"] = str(config_file)
         self.logger.info(f"FAPI setup complete.")
@@ -87,7 +91,7 @@ class LinuxTPM(AbstractTPM):
         }
 
         if self.config.get('tpm.virtualized'):
-            config_data["tcti"] = "swtpm:port=2321"
+            config_data["tcti"] = f"swtpm:port={self.config.get('tpm.virtualized_tpm_port')}"
         else:
             config_data["tcti"] = ""
 
@@ -99,10 +103,39 @@ class LinuxTPM(AbstractTPM):
         if not self.config.get("tpm.virtualized"):
             return
 
+        tpm_port = self.config.get('tpm.virtualized_tpm_port')
+        ctrl_port = self.config.get('tpm.virtualized_tpm_ctrl_port')
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            if self.is_tpm_on(tpm_port):
+                self.logger.info(f"Could connect to localhost port {tpm_port}, considering virtual TPM running")
+                return
+
         path = Path(self.config.get("tpm.virtualized_tpm_path"))
         self.logger.info(f"Starting virtual TPM at {path}")
         path.mkdir(parents=True, exist_ok=True)
-        os.system(f"swtpm socket --tpm2 --tpmstate dir={path} --ctrl type=tcp,port=2322 --server type=tcp,port=2321 --flags not-need-init &")
+
+        command = [
+            "swtpm", "socket", "--tpm2",
+            "--tpmstate", f"dir={path}",
+            "--ctrl", f"type=tcp,port={ctrl_port}",
+            "--server", f"type=tcp,port={tpm_port}",
+            "--flags", "not-need-init"
+        ]
+
+        # no try-catch, let it raise
+        seconds_to_wait = self.config.get("tpm.virtualized_tpm_startup_seconds")
+        subprocess.Popen(command)
+        time.sleep(seconds_to_wait)
+        if not self.is_tpm_on(tpm_port):
+            raise RuntimeError(f"Could connect to localhost port {tpm_port} after waiting {seconds_to_wait} seconds, considering virtual TPM startup failed.")
+
+
+    def is_tpm_on(self, tpm_port: int) -> bool:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            if s.connect_ex(("localhost", tpm_port)) == 0:  # 0 means success... wrapper for C function
+                return True
+        return False
 
 
     def auth_callback(self, path, description, user_data=None):
