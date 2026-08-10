@@ -47,11 +47,10 @@ class ConfigManager:
         cls.instance = instance
         return instance
 
-    """
-    Need to inject logger, otherwise circular import.
-    """
-
     def log_config(self, logger: "LoggerManager"):
+        """
+        Need to inject logger, otherwise circular import.
+        """
         logger.info(f"Loaded config: {self.config}")
 
     def get(self, config: str):

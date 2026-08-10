@@ -31,6 +31,7 @@ class LinuxTPM(AbstractTPM):
         self.setup_fapi()
         self.provision_fapi()
         self.init_key()
+        self.logger.info("NoTPM initialized.")
 
     def setup_fapi(self):
         base_dir = Path(__file__).parent.absolute()
@@ -59,7 +60,8 @@ class LinuxTPM(AbstractTPM):
 
     def download_profile_file(self, profile_file_path):
         if profile_file_path.exists():
-            self.logger.info(f"FAPI profile file already exists at {profile_file_path}, skipping download.")
+            self.logger.info(
+                f"FAPI profile file already exists at {profile_file_path}, skipping download.")
             return
         try:
             url = self.config.get('tpm.fapi_profile_url')
@@ -74,7 +76,8 @@ class LinuxTPM(AbstractTPM):
 
     def create_config_file(self, config_file, profile_dir, user_dir, system_dir, fapi_dir):
         if config_file.exists():
-            self.logger.info(f"FAPI config file already exists at {config_file}, skipping creation.")
+            self.logger.info(
+                f"FAPI config file already exists at {config_file}, skipping creation.")
             return
 
         config_data = {
@@ -104,7 +107,8 @@ class LinuxTPM(AbstractTPM):
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             if self.is_tpm_on(tpm_port):
-                self.logger.info(f"Could connect to localhost port {tpm_port}, considering virtual TPM running")
+                self.logger.info(
+                    f"Could connect to localhost port {tpm_port}, considering virtual TPM running")
                 return
 
         path = Path(self.config.get("tpm.virtualized_tpm_path"))
@@ -125,15 +129,18 @@ class LinuxTPM(AbstractTPM):
         time.sleep(seconds_to_wait)
         if not self.is_tpm_on(tpm_port):
             raise RuntimeError(
-                f"Could connect to localhost port {tpm_port} after waiting {seconds_to_wait} seconds, considering virtual TPM startup failed.")
+                f"Could connect to localhost port {tpm_port} after waiting {seconds_to_wait} "
+                f"seconds, considering virtual TPM startup failed.")
 
     def provision_fapi(self):
         """
-        Even though is_provisioned_ok is set to true, the underlying C library will throw an error message in the logs if
-        the TPM is already provisioned. But no exception is raised, and execution happens as expected. Checking wether
-        TPM is provisioned beforehand is not worth the hassle:
+        Even though is_provisioned_ok is set to true, the underlying C library will throw an
+        error message in the logs if the TPM is already provisioned. But no exception is raised,
+        and execution happens as expected. Checking whether TPM is provisioned beforehand is not
+        worth the hassle:
         - Could check if system_dir was created, but that is not a guarantee.
-        - Could check if the path "/P_RSA2048SHA256/HS/SRK" exists in the result of fapi.list(), but that needs a fapi
+        - Could check if the path "/P_RSA2048SHA256/HS/SRK" exists in the result of fapi.list(),
+        but that needs a fapi
         instance, which fails if not provisioned => does not take us any further.
         """
         with FAPI() as fapi:
@@ -142,7 +149,8 @@ class LinuxTPM(AbstractTPM):
 
     def is_tpm_on(self, tpm_port: int) -> bool:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            if s.connect_ex(("localhost", tpm_port)) == 0:  # 0 means success... wrapper for C function
+            if s.connect_ex(
+                    ("localhost", tpm_port)) == 0:  # 0 means success... wrapper for C function
                 return True
         return False
 
@@ -153,7 +161,8 @@ class LinuxTPM(AbstractTPM):
 
     def init_key(self):
         """
-        Similarly to provision, this will throw an error message if the key already exists, but that affects only logs.
+        Similarly to provision, this will throw an error message if the key already exists,
+        but that affects only logs.
         """
         with FAPI() as fapi:
             fapi.set_auth_callback(self.auth_callback)

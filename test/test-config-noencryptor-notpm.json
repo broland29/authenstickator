@@ -1,0 +1,15 @@
+{
+  "logger": {
+    "log_level": "INFO",
+    "log_file_path": "log.txt"
+  },
+  "tpm": {
+    "enabled": false
+  },
+  "storage": {
+    "storage_file_path": "storage.txt"
+  },
+  "encryptor": {
+    "enabled": false
+  }
+}

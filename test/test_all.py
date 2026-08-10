@@ -1,14 +1,15 @@
-from src.totp.totpapp import TOTPApp
-import requests
+import pytest
 
+from src.encryptor.encryptor import Encryptor
+from src.tpm.no_tpm import NoTPM
 from src.tpm.tpm import TPM
 
 
 class TestAll:
-
     """
     Tests TOTP code generation using https://authenticationtest.com/totpChallenge/.
     """
+
     def test_generate_code(self):
         """
         secret = "I65VU7K5ZQL7WB4E"
@@ -27,11 +28,25 @@ class TestAll:
         """
         assert True
 
-    def test_tpm(self):
-        tpm = TPM()
-        
+    @staticmethod
+    def assert_encrypt_decrypt(encryptor):
         original = "For I was conscious that I knew practically nothing..."
-        encrypted = tpm.encrypt(original)
-        decrypted = tpm.decrypt(encrypted)
+        encrypted = encryptor.encrypt(original)
+        decrypted = encryptor.decrypt(encrypted)
 
         assert original == decrypted
+
+    def test_no_tpm(self):
+        self.assert_encrypt_decrypt(NoTPM())
+
+    def test_tpm(self):
+        """
+        Tests the running platform's TPM class.
+        """
+        self.assert_encrypt_decrypt(TPM())
+
+    @pytest.mark.parametrize("cleanup_singleton", [Encryptor], indirect=True)
+    @pytest.mark.parametrize("encryptor_type", ["NO", "AES"])
+    def test_no_encryptor(self, encryptor_type: str, cleanup_singleton):
+        Encryptor.encryptor_type = encryptor_type
+        self.assert_encrypt_decrypt(Encryptor(b"key"))
