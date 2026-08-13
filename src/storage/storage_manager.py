@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Final
 
 from src.config.config_manager import ConfigManager
 from src.encryptor.encryptor import Encryptor
@@ -9,15 +10,18 @@ from src.tpm.tpm import TPM
 
 class StorageManager:
     """
-    TODO: make it usable with "with", so close called automatically. Handle close in each scenario.
+    Storage is a dictionary, where the key is the name, and the value is the secret. Name shall
+    be unique.
 
-    Storage is a dictionary, where the key is the name, and the value is the secret. Name shall be unique.
-
-    When read from a QR (todo), the QR is an encoded URL, which contains the name and the secret as well, for example:
-    https://authenticationtest.com/totp/?secret=I65VU7K5ZQL7WB4E&name=Test => name = authenticationtest, secret = I65VU7K5ZQL7WB4E
+    When read from a QR (todo), the QR is an encoded URL, which contains the name and the secret
+    as well, for example:
+    https://authenticationtest.com/totp/?secret=I65VU7K5ZQL7WB4E&name=Test => name =
+    authenticationtest, secret = I65VU7K5ZQL7WB4E
 
     When added manually, name is required to be added as well.
     """
+    DEFAULT_KEY: Final[str] = ""
+
     logger = LoggerManager()
 
     def __init__(self):
@@ -30,6 +34,7 @@ class StorageManager:
             tpm = TPM()
             key = self.config.get("encryptor.key")
             self.key = tpm.encrypt(key)
+            print(">>>>>>>KEY", self.key)
 
         # The encryptor will use the encrypted key.
         self.encryptor = Encryptor(self.key)
@@ -44,6 +49,13 @@ class StorageManager:
             content = self.encryptor.decrypt(content_encrypted)
             self.storage = json.loads(content)
             self.logger.error(f"[REMOVE FROM PROD] read storage: {self.storage}")
+
+    def init_key(self):
+        key_file_path = self.config.get("storage.key_file_path")
+        with open(key_file_path, "rb") as file:
+            key_plain = file.read()
+        tpm = TPM()
+        self.key = tpm.decrypt(key_plain)
 
     def __enter__(self):
         return self

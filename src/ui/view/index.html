@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Authenstickator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="../script/scriptUtils.js"></script>
+    <script src="../script/loginScript.js"></script>
+    <script src="../script/registerScript.js"></script>
+    <script src="../script/totpScript.js"></script>
+</head>
+<body>
+
+<h1>Authenstickator</h1>
+
+<div id="viewDiv">
+    Loading...
+</div>
+
+<script>
+    let CONSTANTS = null;
+
+    // When pywebview is ready, call the startup handler.
+    window.addEventListener('pywebviewready', async function () {
+        CONSTANTS = await window.pywebview.api.get_constants_handler();
+        await pywebview.api.startup_handler();
+    });
+</script>
+
+</body>
+</html>

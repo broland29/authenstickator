@@ -17,12 +17,12 @@ class Encryptor:
         """
         The key is bytes, since it might come from TPM encryption. PDKDF2 accepts bytes as input, for example.
         """
+        if cls.instance is not None:
+            return cls.instance
+
         config = ConfigManager()
         encryptor_type = config.get("encryptor.type")
         encryptor_enabled = config.get("encryptor.enabled")
-
-        if cls.instance is not None:
-            return cls.instance
 
         if not encryptor_enabled:
             cls.instance = NoEncryptor()

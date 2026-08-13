@@ -1,0 +1,57 @@
+/**
+ * Convenience wrapper for calling an API function: handles showing error/success messages, returns
+ * the whole result for possible further processing.
+ */
+async function callApi(apiFunction) {
+    clearMessage();
+
+    const result = await apiFunction();
+
+    if (result.status === CONSTANTS.STATUS_ERROR) {
+        showError(result.error_message);
+    } else if (result.status === CONSTANTS.STATUS_SUCCESS && result.success_message !== null) {
+        showSuccess(result.success_message);
+    }
+
+    return result;
+}
+
+/**
+ * Shows a scary error message to the user.
+ */
+function showError(errorMessage) {
+    const messageParagraph = document.getElementById("messageParagraph");
+    if (!messageParagraph) {
+        console.error("Cannot log error message since messageParagraph was not found.")
+        return;
+    }
+    messageParagraph.classList.remove("success-message")  // does not fail if not in class list
+    messageParagraph.classList.add("error-message")
+    messageParagraph.textContent = errorMessage;
+}
+
+/**
+ * Shows a friendly success message to the user.
+ */
+function showSuccess(successMessage) {
+    const messageParagraph = document.getElementById("messageParagraph");
+    if (!messageParagraph) {
+        console.error("Cannot log success message since messageParagraph was not found.")
+        return;
+    }
+    messageParagraph.classList.remove("error-message")  // does not fail if not in class list
+    messageParagraph.classList.add("success-message")
+    messageParagraph.textContent = successMessage;
+}
+
+function clearMessage() {
+    document.getElementById("messageParagraph").textContent = "";
+}
+
+/**
+ * Changes the view (inside index.html) to the view at path viewPath.
+ */
+async function loadView(viewPath) {
+    const response = await fetch(viewPath);
+    document.getElementById("viewDiv").innerHTML = await response.text();
+}
