@@ -31,8 +31,11 @@ class LinuxTPM(AbstractTPM):
 
         if self.config.get("tpm.virtualized"):
             self.start_virtual_tpm()
+            # Provisioning is an OS-level administrative task, i.e., if TPM is not virtualized, the
+            # user shall do it by themselves. If it is already provisioned, a real TPM might lock
+            # the app out.
+            self.provision_fapi()  #
 
-        self.provision_fapi()
         self.setup_secret()
         self.logger.info("LinuxTPM initialized.")
 
