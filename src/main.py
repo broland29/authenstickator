@@ -14,8 +14,7 @@ class Main:
     def __init__(self):
         self.config.log_config(self.logger)
 
-    @staticmethod
-    def main():
+    def main(self):
         index_path = Path(__file__).parent / "ui" / "view" / "index.html"
 
         js_api = MasterController()
@@ -23,7 +22,7 @@ class Main:
         js_api.set_window(window)
 
         LoggerManager.disable_pywebview_logger()
-        webview.start(debug=True)
+        webview.start(debug=self.config.get("pywebview.debug"))
 
 
 if __name__ == "__main__":

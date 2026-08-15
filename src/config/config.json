@@ -3,6 +3,9 @@
     "log_level": "DEBUG",
     "log_file_path": "log.txt"
   },
+  "pywebview": {
+    "debug": false
+  },
   "tpm": {
     "enabled": true,
     "fapi_profile_name": "P_RSA2048SHA256",
