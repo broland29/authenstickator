@@ -1,6 +1,6 @@
 {
   "logger": {
-    "log_level": "INFO",
+    "log_level": "DEBUG",
     "log_file_path": "log.txt"
   },
   "tpm": {
@@ -16,12 +16,10 @@
   },
   "storage": {
     "storage_file_path": "storage.txt",
-    "key_file_path": "key.txt"
+    "hashed_user_password_file_path": "hashed-user-password.txt"
   },
   "encryptor": {
-    "enabled": true,
-    "type": "AES",
-    "pbkdf2_salt": "salt"
+    "type": "AES"
   },
   "hasher": {
     "type": "ARGON2"

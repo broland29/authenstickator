@@ -10,9 +10,6 @@
     "storage_file_path": "storage.txt"
   },
   "encryptor": {
-    "enabled": true,
-    "type": "AES",
-    "key": "Sixteen byte key",
-    "pbkdf2_salt": "salt"
+    "type": "AES"
   }
 }

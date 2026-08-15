@@ -10,18 +10,16 @@ from src.logger.logger_manager import LoggerManager
 class AESEncryptor(AbstractEncryptor):
     """
     Encrypts and decrypts data using AES algorithm.
-
-    TODO: ask for key as user input, use random salt.
     """
     logger = LoggerManager()
     config = ConfigManager()
 
-    def __init__(self, key: bytes):
-        # With the help of a salt and Password-Based Key Derivation Function 2, convert the key. The result has 32
-        # bytes, which is accepted by the AES algorithm. This way, the user may provide a key of any length.
-        salt = self.config.get("encryptor.pbkdf2_salt")
+    def __init__(self, user_password: str, salt: bytes):
+        # With the help of the Password-Based Key Derivation Function 2, convert the key. The
+        # result has 32 bytes, which is accepted by the AES algorithm. This way, user_password
+        # may be of any length.
         self.key = PBKDF2(
-            password=key,
+            password=user_password,
             salt=salt,
             dkLen=32,
             count=100_000,

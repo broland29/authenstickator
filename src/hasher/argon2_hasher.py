@@ -12,3 +12,10 @@ class Argon2Hasher(AbstractHasher):
     @override
     def hash(self, plaintext: str) -> str:
         return self.password_hasher.hash(plaintext)
+
+    @override
+    def verify(self, plaintext: str, hashed: str) -> bool:
+        try:
+            return self.password_hasher.verify(hashed, plaintext)
+        except Exception:
+            return False

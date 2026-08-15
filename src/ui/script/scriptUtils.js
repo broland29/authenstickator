@@ -2,15 +2,17 @@
  * Convenience wrapper for calling an API function: handles showing error/success messages, returns
  * the whole result for possible further processing.
  */
-async function callApi(apiFunction) {
+async function callApi(apiFunction, silent = false) {
     clearMessage();
 
     const result = await apiFunction();
 
-    if (result.status === CONSTANTS.STATUS_ERROR) {
-        showError(result.error_message);
-    } else if (result.status === CONSTANTS.STATUS_SUCCESS && result.success_message !== null) {
-        showSuccess(result.success_message);
+    if (!silent) {
+        if (result.status === CONSTANTS.STATUS_ERROR) {
+            showError(result.error_message);
+        } else if (result.status === CONSTANTS.STATUS_SUCCESS && result.success_message !== null) {
+            showSuccess(result.success_message);
+        }
     }
 
     return result;
@@ -54,4 +56,9 @@ function clearMessage() {
 async function loadView(viewPath) {
     const response = await fetch(viewPath);
     document.getElementById("viewDiv").innerHTML = await response.text();
+
+    // The TOTP view requires extra initialization after it is loaded.
+    if (viewPath.endsWith("totp.html")) {
+        await initTOTP();
+    }
 }

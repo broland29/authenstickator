@@ -8,7 +8,6 @@ from typing import Final
 
 import requests
 from tpm2_pytss import FAPI
-from typing_extensions import override
 
 from src.config.config_manager import ConfigManager
 from src.logger.logger_manager import LoggerManager
@@ -22,7 +21,7 @@ class LinuxTPM(AbstractTPM):
     TPM has to be set up by the user. The config is usually at path /etc/tpm2-tss/fapi-config.json
     """
 
-    KEY_PATH: Final[str] = "HS/SRK/authenstickator"
+    NV_PATH: Final[str] = "/nv/Owner/authenstickator"
     """Encryption and decryption uses a key, which is identified by this path."""
 
     def __init__(self):
@@ -30,8 +29,24 @@ class LinuxTPM(AbstractTPM):
         self.logger = LoggerManager()
         self.setup_fapi()
         self.provision_fapi()
-        self.init_key()
-        self.logger.info("NoTPM initialized.")
+        self.setup_secret()
+        self.logger.info("LinuxTPM initialized.")
+
+    def setup_secret(self) -> None:
+        with FAPI() as fapi:
+            tpm_paths = fapi.list("/")
+            if any(tpm_path.endswith(self.NV_PATH) for tpm_path in tpm_paths):
+                self.logger.info("Secret setup skipped since it already exists.")
+                return
+
+            random_bytes = fapi.get_random(16)
+            fapi.create_nv(self.NV_PATH, 16, exists_ok=True)
+            fapi.nv_write(self.NV_PATH, random_bytes)
+        self.logger.info("Secret setup successful.")
+
+    def get_secret(self) -> bytes:
+        with FAPI() as fapi:
+            return fapi.nv_read(self.NV_PATH)[0]
 
     def setup_fapi(self):
         base_dir = Path(__file__).parent.absolute()
@@ -158,28 +173,3 @@ class LinuxTPM(AbstractTPM):
         """FAPI"""
         print(path)
         return b""
-
-    def init_key(self):
-        """
-        Similarly to provision, this will throw an error message if the key already exists,
-        but that affects only logs.
-        """
-        with FAPI() as fapi:
-            fapi.set_auth_callback(self.auth_callback)
-            fapi.create_key(
-                path=self.KEY_PATH,
-                type_="decrypt",
-                exists_ok=True
-            )
-
-    @override
-    def encrypt(self, plaintext: str) -> bytes:
-        with FAPI() as fapi:
-            fapi.set_auth_callback(self.auth_callback)
-            return fapi.encrypt(self.KEY_PATH, plaintext.encode("utf-8"))
-
-    @override
-    def decrypt(self, ciphertext: bytes) -> str:
-        with FAPI() as fapi:
-            fapi.set_auth_callback(self.auth_callback)
-            return fapi.decrypt(self.KEY_PATH, ciphertext).decode("utf-8")

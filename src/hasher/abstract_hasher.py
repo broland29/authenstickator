@@ -6,3 +6,7 @@ class AbstractHasher(ABC):
     @abstractmethod
     def hash(self, plaintext: str) -> str:
         pass
+
+    @abstractmethod
+    def verify(self, plaintext: str, hashed: str) -> bool:
+        pass

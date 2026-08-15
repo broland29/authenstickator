@@ -4,5 +4,9 @@ async function initLogin() {
 
 async function unlockHandler() {
     const password = document.getElementById("passwordInput").value;
-    await callApi(() => window.pywebview.api.login.verify_password_handler(password))
+    const result = await callApi(() => window.pywebview.api.login.verify_password_handler(password))
+
+    if (result.status === CONSTANTS.STATUS_SUCCESS) {
+        await loadView(result.data);
+    }
 }

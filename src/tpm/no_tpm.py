@@ -11,8 +11,8 @@ class NoTPM(AbstractTPM):
     def __init__(self):
         self.logger.info("No TPM initialized")
 
-    def encrypt(self, plaintext: str) -> bytes:
-        return plaintext.encode()
+    def setup_secret(self) -> None:
+        pass
 
-    def decrypt(self, ciphertext: bytes) -> str:
-        return ciphertext.decode()
+    def get_secret(self) -> bytes:
+        return b"A" * 16

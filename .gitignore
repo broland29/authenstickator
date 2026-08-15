@@ -12,3 +12,5 @@ storage.txt
 
 # The FAPI config folder, downloaded and set up automatically when ran for the first time.
 src/tpm/fapi-config/*
+
+hashed-user-password.txt

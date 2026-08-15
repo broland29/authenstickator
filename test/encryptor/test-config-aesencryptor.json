@@ -1,0 +1,9 @@
+{
+  "logger": {
+    "log_level": "INFO",
+    "log_file_path": "log.txt"
+  },
+  "encryptor": {
+    "type": "AES"
+  }
+}

@@ -14,6 +14,8 @@ class LoggerManager:
         if cls.instance is not None:
             return cls.instance
 
+        cls.instance = super().__new__(cls)
+
         config = ConfigManager()
         log_level = config.get("logger.log_level")
         log_file_path = config.get("logger.log_file_path")
@@ -22,7 +24,7 @@ class LoggerManager:
         logger.setLevel(log_level)
 
         formatter = logging.Formatter(
-            "[%(asctime)s] [%(levelname).1s] [%(name)s] %(message)s",
+            "[%(asctime)s] [%(levelname).1s] [%(filename)s:%(lineno)d] [%(name)s] %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S"
         )
 
@@ -34,16 +36,39 @@ class LoggerManager:
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
-        logger.info("Logger configured. Starting the application. ^.^")
+        logger.info("Logger configured. Starting the application.")
 
-        cls.instance = logger
-        return logger
+        logger.info("\n"
+                    """
+┌─┐╷ ╷╶┬╴╷ ╷┌─╴┌┐╷┌─┐╶┬╴╷┌─╴╷┌ ┌─┐╶┬╴┌─┐┌─┐
+├─┤│ │ │ ├─┤├╴ │└┤└─┐ │ ││  ├┴┐├─┤ │ │ │├┬┘
+╵ ╵└─┘ ╵ ╵ ╵└─╴╵ ╵└─┘ ╵ ╵└─╴╵ ╵╵ ╵ ╵ └─┘╵└╴
+                    """)
+
+        cls.instance.logger = logger
+        return cls.instance
 
     @staticmethod
     def disable_pywebview_logger():
         """
-        Pywebview has its own logger; without the following lines, logs will be duplicated (if pywebview runs in debug mode).
+        Pywebview has its own logger; without the following lines, logs will be duplicated (if
+        pywebview runs in debug mode).
         """
         pywebview_logger = logging.getLogger("pywebview")
         pywebview_logger.handlers.clear()
         pywebview_logger.propagate = True
+
+    def debug(self, msg):
+        self.logger.debug(msg, stacklevel=2)
+
+    def info(self, msg):
+        self.logger.info(msg, stacklevel=2)
+
+    def warning(self, msg):
+        self.logger.warning(msg, stacklevel=2)
+
+    def error(self, msg):
+        self.logger.error(msg, stacklevel=2)
+
+    def log_enter(self, method_name: str):
+        self.logger.debug(f"Entered {method_name}", stacklevel=2)

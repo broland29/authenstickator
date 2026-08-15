@@ -1,3 +1,7 @@
+import os
+
+from webview import Window
+
 from src.config.config_manager import ConfigManager
 from src.logger.logger_manager import LoggerManager
 from src.ui.controller.login_controller import LoginController
@@ -22,32 +26,29 @@ class MasterController:
     config = ConfigManager()
 
     def __init__(self):
-        self.login = LoginController()
-        self.register = RegisterController()
-        self.totp = TOTPController()
-        self.window = None
+        self.window = None  # Can be set after webview.create_window succeeds.
+        self.login = LoginController(self)
+        self.register = RegisterController(self)
+        self.totp = TOTPController(self)  # Can be instantiated only when user password is provided.
 
-    def set_window(self, window):
-        """
-        Sets the window attribute of the controller and its subcontrollers so that controllers can
-        call JS functions.
-        """
+    def set_window(self, window: Window):
         self.window = window
-        self.login.set_window(window)
-        self.register.set_window(window)
-        self.totp.set_window(window)
+
+    def init_totp_controller(self, user_password: str):
+        self.totp.setup_storage_manager(user_password)
 
     def get_constants_handler(self):
+        self.logger.log_enter("get_constants_handler")
         return Response.get_constants()
 
     def startup_handler(self):
         """
         Called when pywebview is ready => when UI is loaded.
         """
-        self.logger.debug("Startup handler called.")
-        key = self.read_key()
-        if not key:
-            self.load_view(View.REGISTER)
+        self.logger.log_enter("startup_handler")
+        path = self.config.get("storage.hashed_user_password_file_path")
+        if not os.path.exists(path):
+            self.load_view(View.REGISTER)  # No saved password => register.
             return
 
         self.load_view(View.LOGIN)

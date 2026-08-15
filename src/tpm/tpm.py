@@ -33,8 +33,8 @@ class TPM(AbstractTPM):
         cls.instance = NoTPM()
         return cls.instance
 
-    def encrypt(self, plaintext: str) -> bytes:
-        return self.instance.encrypt(plaintext)
+    def setup_secret(self) -> None:
+        self.instance.setup_secret()
 
-    def decrypt(self, ciphertext: bytes) -> str:
-        return self.instance.decrypt(ciphertext)
+    def get_secret(self) -> bytes:
+        return self.instance.get_secret()

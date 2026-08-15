@@ -1,0 +1,24 @@
+import os
+
+import pytest
+
+from src.tpm.tpm import TPM
+
+
+@pytest.mark.parametrize("cleanup_singleton", [TPM], indirect=True)
+@pytest.mark.parametrize("stub_config", [
+    os.path.join("tpm", "test-config-tpm.json"),
+    os.path.join("tpm", "test-config-no-tpm.json")
+], indirect=True)
+@pytest.mark.usefixtures("stub_config", "cleanup_singleton")
+class TestTPM:
+    """
+    TPM unit tests.
+    """
+
+    def test_tpm(self):
+        tpm = TPM()
+        tpm.setup_secret()
+        secret1 = tpm.get_secret()
+        secret2 = tpm.get_secret()
+        assert secret1 == secret2

@@ -1,6 +1,5 @@
 import json
 import os
-from typing import Final
 
 from src.config.config_manager import ConfigManager
 from src.encryptor.encryptor import Encryptor
@@ -19,30 +18,24 @@ class StorageManager:
     authenticationtest, secret = I65VU7K5ZQL7WB4E
 
     When added manually, name is required to be added as well.
+
+    Instead of using the Context Manager Protocol (Python with syntax), i save the file at each
+    modification. This way, there is no need to do cleanup, and if the app crashes, the file is
+    still up to date. Adds/ deletes are not that frequent, so the performance impact is negligible.
     """
-    DEFAULT_KEY: Final[str] = ""
-
     logger = LoggerManager()
+    config = ConfigManager()
 
-    def __init__(self):
-        self.config = ConfigManager()
+    def __init__(self, user_password: str):
+        tpm = TPM()
+        self.encryptor = Encryptor(user_password, tpm.get_secret())
+
         storage_file_path = self.config.get("storage.storage_file_path")
 
-        if not self.config.get("encryptor.enabled"):
-            self.key = b""  # do not require key if encryptor is disabled, NoEncryptor ignores key
-        else:
-            tpm = TPM()
-            key = self.config.get("encryptor.key")
-            self.key = tpm.encrypt(key)
-            print(">>>>>>>KEY", self.key)
-
-        # The encryptor will use the encrypted key.
-        self.encryptor = Encryptor(self.key)
-
         if not os.path.exists(storage_file_path):
-            self.logger.warn(f"Storage file {storage_file_path} does not exist, creating it.")
+            self.logger.warning(f"Storage file {storage_file_path} not found, no secrets loaded.")
             self.storage = {}
-            self.close()
+            return
 
         with open(storage_file_path, "rb") as file:
             content_encrypted = file.read()
@@ -50,46 +43,50 @@ class StorageManager:
             self.storage = json.loads(content)
             self.logger.error(f"[REMOVE FROM PROD] read storage: {self.storage}")
 
-    def init_key(self):
-        key_file_path = self.config.get("storage.key_file_path")
-        with open(key_file_path, "rb") as file:
-            key_plain = file.read()
-        tpm = TPM()
-        self.key = tpm.decrypt(key_plain)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-        return False
-
     def add_secret(self, secret: str, name: str) -> bool:
+        """
+        Add a new secret to storage.
+        """
         if name in self.storage:
             self.logger.warning(f"Secret for {name} already exists.")
             return False
         self.storage[name] = secret
+        self.save()
         return True
 
     def remove_secret(self, name: str) -> bool:
+        """
+        Remove an existing secret from storage.
+        """
         if name not in self.storage:
-            self.logger.warning(f"Secret for {name} is missing.")
+            self.logger.warning(f"Secret for {name} does not exist.")
             return False
         self.storage.pop(name)
+        self.save()
         return True
 
     def get_secret(self, name: str) -> str | None:
+        """
+        Retrieve secret from storage with the specified name.
+        """
         if name not in self.storage:
             self.logger.warning(f"Secret for {name} is missing.")
             return None
         return self.storage.get(name)
 
-    def get_all_secrets(self) -> dict[str, str]:
+    def get_storage(self) -> dict[str, str]:
+        """
+        Retrieve all secrets from storage.
+        """
         return self.storage
 
-    def close(self) -> None:
+    def save(self) -> None:
+        """
+        Save storage to the storage file (and close it).
+        """
         content = json.dumps(self.storage)
         content_encrypted = self.encryptor.encrypt(content)
         storage_file_path = self.config.get("storage.storage_file_path")
         with open(storage_file_path, "wb") as file:
             file.write(content_encrypted)
+        self.logger.debug("Storage saved.")
