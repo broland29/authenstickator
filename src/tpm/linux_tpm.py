@@ -27,10 +27,10 @@ class LinuxTPM(AbstractTPM):
     """Encryption and decryption uses a key, which is identified by this path."""
 
     def __init__(self):
+        self.setup_fapi()
         if self.config.get("tpm.virtualized"):
-            self.setup_fapi()
             self.start_virtual_tpm()
-            self.provision_fapi()
+        self.provision_fapi()
         self.setup_secret()
         self.logger.info("LinuxTPM initialized.")
 
@@ -51,8 +51,7 @@ class LinuxTPM(AbstractTPM):
             return fapi.nv_read(self.NV_PATH)[0]
 
     def setup_fapi(self):
-        base_dir = Path(__file__).parent.absolute()
-        fapi_dir = base_dir / "fapi-config"
+        fapi_dir = Path.home() / ".local" / "share" / "authenstickator"
         self.logger.info(f"Setting up FAPI in {fapi_dir}")
 
         system_dir = fapi_dir / "system-dir"
