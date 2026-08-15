@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import pytest
 
@@ -7,11 +7,13 @@ from src.encryptor.encryptor import Encryptor
 from src.storage.storage_manager import StorageManager
 from src.tpm.tpm import TPM
 
+TEST_DIR = Path(__file__).parent
+
 
 @pytest.mark.parametrize("cleanup_singleton", [Encryptor, TPM], indirect=True)
 @pytest.mark.parametrize("stub_config", [
-    os.path.join("storage", "test-config-aesencryptor-notpm.json"),
-    os.path.join("storage", "test-config-aesencryptor-tpm.json")
+    TEST_DIR / "test-config-aesencryptor-notpm.json",
+    TEST_DIR / "test-config-aesencryptor-tpm.json"
 ], indirect=True)
 @pytest.mark.usefixtures("stub_config", "cleanup_storage", "cleanup_singleton")
 class TestStorage:

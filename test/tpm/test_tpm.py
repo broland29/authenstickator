@@ -1,14 +1,16 @@
-import os
+from pathlib import Path
 
 import pytest
 
 from src.tpm.tpm import TPM
 
+TEST_DIR = Path(__file__).parent
+
 
 @pytest.mark.parametrize("cleanup_singleton", [TPM], indirect=True)
 @pytest.mark.parametrize("stub_config", [
-    os.path.join("tpm", "test-config-tpm.json"),
-    os.path.join("tpm", "test-config-no-tpm.json")
+    TEST_DIR / "test-config-tpm.json",
+    TEST_DIR / "test-config-no-tpm.json"
 ], indirect=True)
 @pytest.mark.usefixtures("stub_config", "cleanup_singleton")
 class TestTPM:

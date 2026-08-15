@@ -1,13 +1,15 @@
-import os
+from pathlib import Path
 
 import pytest
 
 from src.hasher.hasher import Hasher
 
+TEST_DIR = Path(__file__).parent
+
 
 @pytest.mark.parametrize("cleanup_singleton", [Hasher], indirect=True)
 @pytest.mark.parametrize("stub_config", [
-    os.path.join("hasher", "test-config-argon2hasher.json")
+    TEST_DIR / "test-config-argon2hasher.json"
 ], indirect=True)
 @pytest.mark.usefixtures("stub_config", "cleanup_singleton")
 class TestHasher:

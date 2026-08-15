@@ -1,13 +1,15 @@
-import os
+from pathlib import Path
 
 import pytest
 
 from src.encryptor.encryptor import Encryptor
 
+TEST_DIR = Path(__file__).parent
+
 
 @pytest.mark.parametrize("cleanup_singleton", [Encryptor], indirect=True)
 @pytest.mark.parametrize("stub_config", [
-    os.path.join("tpm", "test-config-aesencryptor.json")
+    TEST_DIR / "test-config-aesencryptor.json"
 ], indirect=True)
 @pytest.mark.usefixtures("stub_config", "cleanup_singleton")
 class TestEncryptor:
