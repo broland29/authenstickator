@@ -9,8 +9,9 @@ TEST_DIR = Path(__file__).parent
 
 @pytest.mark.parametrize("cleanup_singleton", [TPM], indirect=True)
 @pytest.mark.parametrize("stub_config", [
-    TEST_DIR / "test-config-tpm.json",
-    TEST_DIR / "test-config-no-tpm.json"
+    TEST_DIR / "test-config-notpm.json",
+    TEST_DIR / "test-config-swtpm.json",
+    TEST_DIR / "test-config-realtpm.json"
 ], indirect=True)
 @pytest.mark.usefixtures("stub_config", "cleanup_singleton")
 class TestTPM:

@@ -6,7 +6,6 @@ let totpTimer = null;
 async function initTOTP() {
     await getAllInfo();
     await startTOTPTimer();
-    console.debug("View initialized.")
 }
 
 /**

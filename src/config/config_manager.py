@@ -1,5 +1,5 @@
 import json
-import os
+from pathlib import Path
 from typing import Final, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -7,28 +7,13 @@ if TYPE_CHECKING:
 
 
 class ConfigManager:
-    """
-    TODO: add validation of loaded config file, fallback to defaults in case of invalid values from config.json.
-    """
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-    CONFIG_PATH: Final[str] = os.path.join(BASE_DIR, "config.json")
-
-    DEFAULT_CONFIG: Final[dict] = {
-        "webview": {
-            "debug": True,
-        },
-        "logger": {
-            "log_level": "INFO",
-            "log_file": "log.txt"
-        },
-        "storage": {
-            "storage_path": "storage.txt",
-            "storage_encryptor": "none",
-        }
-    }
+    # The config file path is hardcoded.
+    BASE_DIR: Final[Path] = Path(__file__).parent
+    CONFIG_FILE_PATH: Final[Path] = BASE_DIR / "config.json"
+    LOCAL_CONFIG_FILE_PATH: Final[Path] = BASE_DIR / "config-local.json"
 
     instance = None
+    config_file_path: Path = None
 
     def __new__(cls):
         if cls.instance is not None:
@@ -36,12 +21,15 @@ class ConfigManager:
 
         instance = super().__new__(cls)
 
-        if not os.path.exists(cls.CONFIG_PATH):
-            print(f"Config file not found at {cls.CONFIG_PATH}, creating default config.")
-            with open(cls.CONFIG_PATH, "w") as file:
-                file.write(json.dumps(cls.DEFAULT_CONFIG, indent=4))
+        if cls.LOCAL_CONFIG_FILE_PATH.exists():
+            cls.config_file_path = cls.LOCAL_CONFIG_FILE_PATH
+        elif cls.CONFIG_FILE_PATH.exists():
+            cls.config_file_path = cls.CONFIG_FILE_PATH
+        else:
+            raise FileNotFoundError(f"No config file found! Searched at"
+                                    f" {cls.LOCAL_CONFIG_FILE_PATH} and {cls.CONFIG_FILE_PATH}")
 
-        with open(cls.CONFIG_PATH, "r") as file:
+        with open(cls.config_file_path, "r") as file:
             instance.config = json.load(file)
 
         cls.instance = instance
@@ -49,9 +37,10 @@ class ConfigManager:
 
     def log_config(self, logger: "LoggerManager"):
         """
-        Need to inject logger, otherwise circular import.
+        Logger needs config, so config cannot require logger (circular import). Instead,
+        pass logger as argument here, and raise clear exceptions if configs not found.
         """
-        logger.info(f"Loaded config: {self.config}")
+        logger.info(f"Loaded config from {self.config_file_path}: {self.config}")
 
     def get(self, config: str):
         keys = config.split(".")
@@ -59,7 +48,7 @@ class ConfigManager:
 
         for key in keys:
             if key not in value:
-                print(f"Key {key} not found in config.")
-                return None
+                raise KeyError(f"Config {config} not found. Consider adding it to "
+                               f"{self.config_file_path} with an appropriate value.")
             value = value[key]
         return value

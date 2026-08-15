@@ -20,14 +20,18 @@ class LinuxTPM(AbstractTPM):
 
     TPM has to be set up by the user. The config is usually at path /etc/tpm2-tss/fapi-config.json
     """
+    config = ConfigManager()
+    logger = LoggerManager()
 
     NV_PATH: Final[str] = "/nv/Owner/authenstickator"
     """Encryption and decryption uses a key, which is identified by this path."""
 
     def __init__(self):
-        self.config = ConfigManager()
-        self.logger = LoggerManager()
         self.setup_fapi()
+
+        if self.config.get("tpm.virtualized"):
+            self.start_virtual_tpm()
+
         self.provision_fapi()
         self.setup_secret()
         self.logger.info("LinuxTPM initialized.")
@@ -65,8 +69,6 @@ class LinuxTPM(AbstractTPM):
 
         config_file = fapi_dir / "fapi-config.json"
         self.create_config_file(config_file, profile_dir, user_dir, system_dir, fapi_dir)
-
-        self.start_virtual_tpm()
 
         # Set the environment variable so that the session picks up the right FAPI configuration.
         os.environ["TSS2_FAPICONF"] = str(config_file)
@@ -114,9 +116,6 @@ class LinuxTPM(AbstractTPM):
             json.dump(config_data, f, indent=4)
 
     def start_virtual_tpm(self):
-        if not self.config.get("tpm.virtualized"):
-            return
-
         tpm_port = self.config.get('tpm.virtualized_tpm_port')
         ctrl_port = self.config.get('tpm.virtualized_tpm_ctrl_port')
 
@@ -146,6 +145,8 @@ class LinuxTPM(AbstractTPM):
             raise RuntimeError(
                 f"Could connect to localhost port {tpm_port} after waiting {seconds_to_wait} "
                 f"seconds, considering virtual TPM startup failed.")
+
+        self.logger.info("Virtual TPM started")
 
     def provision_fapi(self):
         """

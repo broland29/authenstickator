@@ -8,17 +8,14 @@ from src.ui.controller.master_controller import MasterController
 
 
 class Main:
+    config = ConfigManager()
+    logger = LoggerManager()
 
     def __init__(self):
-        self.config = ConfigManager()
-        self.logger = LoggerManager()
         self.config.log_config(self.logger)
-        # self.totp = TOTPApp()  TODO: instantiate after successful login
 
-        # The pywebview window, so that we can call it to load views.
-        self.window = None
-
-    def main(self):
+    @staticmethod
+    def main():
         index_path = Path(__file__).parent / "ui" / "view" / "index.html"
 
         js_api = MasterController()

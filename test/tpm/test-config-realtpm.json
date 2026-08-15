@@ -1,0 +1,10 @@
+{
+  "logger": {
+    "log_level": "DEBUG",
+    "log_file_path": "log.txt"
+  },
+  "tpm": {
+    "enabled": true,
+    "virtualized": false
+  }
+}
