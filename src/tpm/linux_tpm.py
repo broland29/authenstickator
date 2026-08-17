@@ -27,10 +27,10 @@ class LinuxTPM(AbstractTPM):
     """Encryption and decryption uses a key, which is identified by this path."""
 
     def __init__(self):
-        self.setup_fapi()
         if self.config.get("tpm.virtualized"):
+            self.setup_fapi()
             self.start_virtual_tpm()
-        self.provision_fapi()
+            self.provision_fapi()
         self.setup_secret()
         self.logger.info("LinuxTPM initialized.")
 

@@ -41,7 +41,6 @@ class StorageManager:
             content_encrypted = file.read()
             content = self.encryptor.decrypt(content_encrypted)
             self.storage = json.loads(content)
-            self.logger.error(f"[REMOVE FROM PROD] read storage: {self.storage}")
 
     def add_secret(self, secret: str, name: str) -> bool:
         """
