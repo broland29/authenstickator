@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from src.logger.logger_manager import LoggerManager
+from src.qr.qr_manager import QRManager
 from src.storage.storage_manager import StorageManager
 from src.totp.totp_manager import TOTPManager
 from src.ui.controller.response import Response
@@ -20,6 +21,7 @@ class TOTPController:
     def __init__(self, master_controller: "MasterController"):
         self.master_controller = master_controller
         self.totp = TOTPManager()
+        self.qr = QRManager()
         self.storage = None
 
     def init(self, user_password: str):
@@ -80,15 +82,29 @@ class TOTPController:
         if not name:
             return Response.error("Name cannot be empty.")
 
-        secret = secret.replace(" ", "")  # Gmail gives secret with spaces, for example.
+        secret = self.totp.parse_secret(secret)
+        if secret is None:
+            return Response.error("Secret is invalid.")
 
-        # Pad the secret with = characters. Auth apps do this with TOTP secrets to make it
-        # usable for base32.
-        padding_needed = len(secret) % 8
-        if padding_needed != 0:  # for 0, would pad with 8, making code incorrect :)
-            secret += "=" * (8 - padding_needed)
+        added = self.storage.add_secret(secret, name)
+        if not added:
+            return Response.error(f"Secret for {name} already exists.")
 
-        if not self.totp.is_secret_valid(secret):
+        return Response.success(f"Secret for {name} added successfully", self.get_info(name))
+
+    def add_secret_qr_handler(self):
+        self.logger.log_enter("add_secret_qr_handler")
+
+        image_path = self.master_controller.open_image_dialog()
+        if image_path is None:
+            return Response.error("No image selected")
+
+        uri = self.qr.decode(image_path)
+        if uri is None:
+            return Response.error("QR code image is invalid.")
+
+        secret, name = self.totp.parse_provisioning_uri(uri)
+        if secret is None or name is None:
             return Response.error("Secret is invalid.")
 
         added = self.storage.add_secret(secret, name)

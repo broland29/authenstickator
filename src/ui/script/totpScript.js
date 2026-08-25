@@ -92,6 +92,15 @@ async function addSecretHandler() {
     await addRow(result.data);
 }
 
+async function addSecretQRHandler() {
+    const result = await callApi(() => window.pywebview.api.totp.add_secret_qr_handler())
+    if (result.status !== CONSTANTS.STATUS_SUCCESS) {
+        return;
+    }
+
+    await addRow(result.data)
+}
+
 /**
  * Remove a secret and the associated rowDiv.
  */

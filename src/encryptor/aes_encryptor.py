@@ -1,6 +1,7 @@
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
 from Crypto.Protocol.KDF import PBKDF2
+from typing_extensions import override
 
 from src.config.config_manager import ConfigManager
 from src.encryptor.abstract_encryptor import AbstractEncryptor
@@ -14,6 +15,7 @@ class AESEncryptor(AbstractEncryptor):
     logger = LoggerManager()
     config = ConfigManager()
 
+    @override
     def __init__(self, user_password: str, salt: bytes):
         # With the help of the Password-Based Key Derivation Function 2, convert the key. The
         # result has 32 bytes, which is accepted by the AES algorithm. This way, user_password
@@ -25,9 +27,9 @@ class AESEncryptor(AbstractEncryptor):
             count=100_000,
             hmac_hash_module=SHA256
         )
-
         self.logger.info("AESEncryptor initialized.")
 
+    @override
     def encrypt(self, plaintext: str) -> bytes:
         cipher = AES.new(
             key=self.key,
@@ -36,6 +38,7 @@ class AESEncryptor(AbstractEncryptor):
         ciphertext, tag = cipher.encrypt_and_digest(plaintext.encode())
         return cipher.nonce + tag + ciphertext
 
+    @override
     def decrypt(self, ciphertext: bytes) -> str:
         nonce = ciphertext[:16]
         tag = ciphertext[16:32]

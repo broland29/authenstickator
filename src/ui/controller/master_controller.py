@@ -1,5 +1,6 @@
 import os
 
+import webview
 from webview import Window
 
 from src.config.config_manager import ConfigManager
@@ -24,6 +25,7 @@ class MasterController:
 
     logger = LoggerManager()
     config = ConfigManager()
+    window: Window
 
     def __init__(self):
         self.window = None  # Can be set after webview.create_window succeeds.
@@ -58,3 +60,17 @@ class MasterController:
         Tells JS to load the given view.
         """
         self.window.evaluate_js(f"loadView('{view.value}')")
+
+    def open_image_dialog(self) -> str | None:
+        """
+        Opens a dialog, lets the user choose an image, returns the path of the selected image.
+        See: https://pywebview.flowrl.com/examples/open_file_dialog.html.
+        """
+        result = self.window.create_file_dialog(
+            webview.FileDialog.OPEN,
+            allow_multiple=False,
+            file_types=("Image Files (*.bmp;*.jpg;*.jpeg;*.png;*.gif)", "All files (*.*)")
+        )
+        if result is None:
+            return None  # Example: when user presses cancel.
+        return result[0]

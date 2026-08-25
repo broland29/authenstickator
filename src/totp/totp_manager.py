@@ -1,5 +1,7 @@
 import base64
+import binascii
 import datetime
+from typing import Tuple
 
 import pyotp
 
@@ -14,7 +16,8 @@ class TOTPManager:
         cls.instance = super().__new__(cls)
         return cls.instance
 
-    def get_info(self, secret: str) -> tuple[str, str, float, float] | None:
+    @staticmethod
+    def get_info(secret: str) -> tuple[str, str, float, float] | None:
         """
         Returns current and next code and expiration time (in milliseconds, since JS Date.now()
         uses milliseconds as well).
@@ -42,15 +45,49 @@ class TOTPManager:
         next_expires_at = next_next_step_start * 1000
         return current_code, next_code, expires_at, next_expires_at
 
-    def is_secret_valid(self, secret: str) -> bool:
+    def parse_secret(self, secret: str) -> str | None:
         """
-        Returns True if the secret is a valid TOTP secret.
+        Preprocesses secret. Returns the preprocessed secret if valid TOTP secret, otherwise None.
+        """
+        # Some websites, (ex: Google) gives secret with spaces. These shall be removed.
+        secret = secret.replace(" ", "")
 
-        TODO: proper correctness check (research what is accepted).
+        try:
+            # Pyotp pads with = to make secret's length compatible with Base32. We don't store it
+            # padded, but check validness after padding. See: pyotp -> otp.py -> byte_secret()
+            missing_padding = len(secret) % 8
+            if missing_padding != 0:  # for 0, would pad with 8, making code incorrect :)
+                secret += "=" * (8 - missing_padding)
+            base64.b32decode(secret, casefold=True)  # valid TOTP secret = valid Base32 string
+        except binascii.Error:
+            return None
+
+        return secret
+
+    @staticmethod
+    def parse_provisioning_uri(provisioning_uri: str) -> Tuple[str | None, str | None]:
+        """
+        Extracts from a provisioning URI the secret and the name. Returns none if parsing fails.
         """
         try:
-            base64.b32decode(secret, casefold=True)
+            otp = pyotp.parse_uri(provisioning_uri)
+            return otp.secret, TOTPManager.combine_name_and_issuer(otp.name, otp.issuer)
         except Exception:
-            return False
+            return None, None
 
-        return True
+    @staticmethod
+    def combine_name_and_issuer(name: str | None, issuer: str | None) -> str | None:
+        if name is not None and issuer is not None:
+            if name.startswith(f"{issuer}:"):
+                # Sometimes name contains the issuer and is not stripped by pyotp (ex: Google
+                # encodes : and hence pyotp does not string); in such cases we can just return
+                # the name. There are no cases in which the email itself contains the issuer and a
+                # colon (ex: Google:mymail.com for the mail itself) since the colon is an invalid
+                # email character
+                return name
+            return f"{issuer}:{name}"
+        if name is not None:
+            return name
+        if issuer is not None:
+            return issuer
+        return None

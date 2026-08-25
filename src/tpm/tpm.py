@@ -7,11 +7,11 @@ from src.tpm.linux_tpm import LinuxTPM
 from src.tpm.no_tpm import NoTPM
 
 
-class TPM(AbstractTPM):
+class TPM():
     """
     Picks the right TPM class based on the current platform and the config file.
     """
-    instance = None
+    instance: AbstractTPM = None
     logger = LoggerManager()
 
     def __new__(cls):
@@ -32,9 +32,3 @@ class TPM(AbstractTPM):
         cls.logger.log_error(f"TPM not implemented for OS {os_name}, continuing without TPM")
         cls.instance = NoTPM()
         return cls.instance
-
-    def setup_secret(self) -> None:
-        self.instance.setup_secret()
-
-    def get_secret(self) -> bytes:
-        return self.instance.get_secret()

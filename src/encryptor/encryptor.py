@@ -1,3 +1,6 @@
+from typing_extensions import override
+
+from src.encryptor.abstract_encryptor import AbstractEncryptor
 from src.encryptor.aes_encryptor import AESEncryptor
 
 
@@ -5,8 +8,9 @@ class Encryptor:
     """
     Picks the right encryptor based on the config file. Currently, only AES is supported.
     """
-    instance = None
+    instance: AbstractEncryptor = None
 
+    @override
     def __new__(cls, user_password: str, salt: bytes):
         if cls.instance is not None:
             return cls.instance

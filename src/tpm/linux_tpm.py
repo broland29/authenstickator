@@ -8,6 +8,7 @@ from typing import Final
 
 import requests
 from tpm2_pytss import FAPI
+from typing_extensions import override
 
 from src.config.config_manager import ConfigManager
 from src.logger.logger_manager import LoggerManager
@@ -34,6 +35,7 @@ class LinuxTPM(AbstractTPM):
         self.setup_secret()
         self.logger.info("LinuxTPM initialized.")
 
+    @override
     def setup_secret(self) -> None:
         with FAPI() as fapi:
             tpm_paths = fapi.list("/")
@@ -46,6 +48,7 @@ class LinuxTPM(AbstractTPM):
             fapi.nv_write(self.NV_PATH, random_bytes)
         self.logger.info("Secret setup successful.")
 
+    @override
     def get_secret(self) -> bytes:
         with FAPI() as fapi:
             return fapi.nv_read(self.NV_PATH)[0]
