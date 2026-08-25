@@ -11,6 +11,10 @@ class AbstractEncryptor(ABC):
         pass
 
     @abstractmethod
+    def reinit(self, user_password: str, salt: bytes):
+        pass
+
+    @abstractmethod
     def encrypt(self, plaintext: str) -> bytes:
         pass
 

@@ -18,13 +18,16 @@
     "virtualized_tpm_startup_seconds": 1
   },
   "storage": {
-    "storage_file_path": "storage.txt",
-    "hashed_user_password_file_path": "hashed-user-password.txt"
+    "storage_file_path": "storage.txt"
   },
   "encryptor": {
     "type": "AES"
   },
   "hasher": {
     "type": "ARGON2"
+  },
+  "password": {
+    "min_length": 15,
+    "hash_file_path": "hash.txt"
   }
 }

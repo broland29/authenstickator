@@ -12,14 +12,22 @@ class AESEncryptor(AbstractEncryptor):
     """
     Encrypts and decrypts data using AES algorithm.
     """
-    logger = LoggerManager()
-    config = ConfigManager()
+    logger: LoggerManager
+    config: ConfigManager
+    key: bytes
+
+    def __init__(self, user_password: str, salt: bytes):
+        self.reinit(user_password, salt)
 
     @override
-    def __init__(self, user_password: str, salt: bytes):
-        # With the help of the Password-Based Key Derivation Function 2, convert the key. The
-        # result has 32 bytes, which is accepted by the AES algorithm. This way, user_password
-        # may be of any length.
+    def reinit(self, user_password: str, salt: bytes):
+        self.logger = LoggerManager()
+        self.config = ConfigManager()
+
+        # With the help of the PBKDF2, the key is combined with the salt and yields a 32 byte key,
+        # which is accepted by AES. This way, there is no need to restrict user_password to
+        # specific exact lengths, and the salt is combined with the user_password in a standard
+        # fashion.
         self.key = PBKDF2(
             password=user_password,
             salt=salt,

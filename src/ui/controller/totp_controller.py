@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from src.config.config_manager import ConfigManager
 from src.logger.logger_manager import LoggerManager
 from src.qr.qr_manager import QRManager
 from src.storage.storage_manager import StorageManager
@@ -11,23 +12,28 @@ if TYPE_CHECKING:
 
 
 class TOTPController:
-    """
-    We have a lazy-loading like initialization (with method init), since:
-    - at startup we need to register the controller (for the API)
-    - but full initialization can be done only with user password provided
-    """
-    logger = LoggerManager()
+    logger: LoggerManager
+    config: ConfigManager
+    master_controller: "MasterController"
+    totp: TOTPManager
+    qr: QRManager
+    storage: StorageManager
 
     def __init__(self, master_controller: "MasterController"):
+        """
+        Storage can be loaded only after user password is provided.
+        Class has to be initialized before user password available to register for JS API.
+        """
+        self.logger = LoggerManager()
+        self.config = ConfigManager()
         self.master_controller = master_controller
         self.totp = TOTPManager()
         self.qr = QRManager()
-        self.storage = None
 
-    def init(self, user_password: str):
-        self.setup_storage_manager(user_password)
-
-    def setup_storage_manager(self, user_password: str):
+    def init_with_user_password(self, user_password: str):
+        """
+        Lazy-loading storage.
+        """
         self.storage = StorageManager(user_password)
 
     def get_info(self, name, secret=None) -> dict | None:
@@ -65,8 +71,6 @@ class TOTPController:
         for (name, secret) in storage.items():
             info = self.get_info(name, secret)
             if info is None:
-                # TODO: Response.warning? one/more TOTP code generation fails, but i do not want
-                #  to halt the rest.
                 self.logger.error(f"Failed to generate TOTP code for {name}")
                 continue
             all_info.append(self.get_info(name))

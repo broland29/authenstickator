@@ -1,3 +1,6 @@
+const PASSWORD_CHANGE_HTML_PATH = "changepassword.html";
+const FETCH_ERROR = (path) => `Fetching from path ${path} failed`;
+
 /**
  * Convenience wrapper for calling an API function: handles showing error/success messages, returns
  * the whole result for possible further processing.
@@ -54,7 +57,12 @@ function clearMessage() {
  * Changes the view (inside index.html) to the view at path viewPath.
  */
 async function loadView(viewPath) {
+    // If fetch succeeds, response.ok is still false, The response is not a regular HTTP response.
+    // Success is signaled by status 0.
     const response = await fetch(viewPath);
+    if (response.status !== 0) {
+        throw new Error(FETCH_ERROR(viewPath));
+    }
     document.getElementById("viewDiv").innerHTML = await response.text();
 
     // The TOTP view requires extra initialization after it is loaded.

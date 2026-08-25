@@ -116,6 +116,22 @@ async function removeSecretHandler(buttonElement) {
     rowElement.remove();
 }
 
+async function changePasswordHandler() {
+    const changePasswordButton = document.getElementById("changePasswordButton");
+    const changePasswordDiv = document.getElementById("changePasswordDiv");
+    if (changePasswordButton.innerText === "Cancel") {
+        changePasswordDiv.innerHTML = "";
+        changePasswordButton.innerText = "Change password"
+        return;
+    }
+    const response = await fetch(PASSWORD_CHANGE_HTML_PATH)
+    if (response.status !== 0) {
+        throw new Error(FETCH_ERROR(PASSWORD_CHANGE_HTML_PATH));
+    }
+    changePasswordDiv.innerHTML = await response.text();
+    changePasswordButton.innerText = "Cancel";
+}
+
 /**
  * Add a rowDiv (containing name, code and time remaining related to a secret) to rowsDiv.
  */

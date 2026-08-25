@@ -2,8 +2,10 @@ import json
 import os
 
 from src.config.config_manager import ConfigManager
+from src.encryptor.abstract_encryptor import AbstractEncryptor
 from src.encryptor.encryptor import Encryptor
 from src.logger.logger_manager import LoggerManager
+from src.tpm.abstract_tpm import AbstractTPM
 from src.tpm.tpm import TPM
 
 
@@ -23,12 +25,16 @@ class StorageManager:
     modification. This way, there is no need to do cleanup, and if the app crashes, the file is
     still up to date. Adds/ deletes are not that frequent, so the performance impact is negligible.
     """
-    logger = LoggerManager()
-    config = ConfigManager()
+    logger: LoggerManager
+    config: ConfigManager
+    tpm: AbstractTPM
+    encryptor: AbstractEncryptor
 
     def __init__(self, user_password: str):
-        tpm = TPM()
-        self.encryptor = Encryptor(user_password, tpm.get_secret())
+        self.logger = LoggerManager()
+        self.config = ConfigManager()
+        self.tpm = TPM()
+        self.encryptor = Encryptor(user_password, self.tpm.get_secret())
 
         storage_file_path = self.config.get("storage.storage_file_path")
 
