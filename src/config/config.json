@@ -4,7 +4,9 @@
     "log_file_path": "log.txt"
   },
   "pywebview": {
-    "debug": false
+    "debug": false,
+    "width": 1080,
+    "height": 2424
   },
   "tpm": {
     "enabled": true,

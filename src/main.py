@@ -17,8 +17,12 @@ class Main:
     def main(self):
         index_path = Path(__file__).parent / "ui" / "view" / "index.html"
 
+        width = self.config.get("pywebview.width")
+        height = self.config.get("pywebview.height")
+
         js_api = MasterController()
-        window = webview.create_window("usb2fa", index_path.as_uri(), js_api=js_api)
+        window = webview.create_window("usb2fa", index_path.as_uri(), js_api=js_api, width=width,
+                                       height=height)
         js_api.set_window(window)
 
         LoggerManager.disable_pywebview_logger()

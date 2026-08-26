@@ -1,9 +1,11 @@
 <h2>Welcome!</h2>
 
-<label>Please enter a new password:</label>
-<br><br>
-<label for="newPasswordInput">Password:</label>
-<input id="newPasswordInput" type="password">
-<button id="newPasswordButton" onclick="newPasswordHandler()">Enter</button>
-<br><br>
-<p id="messageParagraph"></p>
+<div class="password-content">
+    <label>Please enter a new password.</label>
+    <div class="inline-form">
+        <label for="newPasswordInput">New password:</label>
+        <input id="newPasswordInput" type="password">
+        <button id="newPasswordButton" onclick="newPasswordHandler()">Enter</button>
+    </div>
+    <p id="messageParagraph"></p>
+</div>

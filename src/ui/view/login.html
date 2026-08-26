@@ -1,7 +1,12 @@
 <h2>Welcome back!</h2>
 
-<label for="passwordInput">Password:</label>
-<input id="passwordInput" type="password">
-<button id="unlockButton" onclick="unlockHandler()">Unlock</button>
-<br><br>
-<p id="messageParagraph"></p>
+<div class="password-content">
+    <label>Enter your password to unlock.</label>
+    <div class="inline-form">
+        <label for="passwordInput">Password:</label>
+        <input id="passwordInput" type="password">
+        <button id="unlockButton" onclick="unlockHandler()">Unlock</button>
+    </div>
+    <br><br>
+    <p id="messageParagraph"></p>
+</div>

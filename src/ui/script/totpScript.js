@@ -163,7 +163,6 @@ async function addRow(info) {
 
     const buttonId = name + "RemoveSecretButton";
     rowElement.innerHTML = `
-            <hr>
             <p><a>Name: </a> <a>${name}</a></p>
             <p><a>Code: </a> <a class = "currentCodeAnchor">${currentCode}</a></p>
             <p><a>Remaining time: </a> <a class = "remainingTimeAnchor">${remainingS}</a></p>
