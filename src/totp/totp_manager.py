@@ -17,7 +17,7 @@ class TOTPManager:
         return cls.instance
 
     @staticmethod
-    def get_info(secret: str) -> tuple[str, str, float, float] | None:
+    def get_info(secret: str) -> tuple[str, str, float, float, int] | None:
         """
         Returns current and next code and expiration time (in milliseconds, since JS Date.now()
         uses milliseconds as well).
@@ -43,7 +43,7 @@ class TOTPManager:
         expires_at = next_step_start * 1000  # expires when next code becomes valid, just need to
         # convert to ms
         next_expires_at = next_next_step_start * 1000
-        return current_code, next_code, expires_at, next_expires_at
+        return current_code, next_code, expires_at, next_expires_at, interval
 
     def parse_secret(self, secret: str) -> str | None:
         """

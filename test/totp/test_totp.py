@@ -18,9 +18,7 @@ class TestTOTP:
         assert totp_code is not None
 
         totp = TOTPManager()
-        current_code, next_code, expires_at, next_expires_at = totp.get_info(
-            secret)
-
+        current_code, _, _, _, _ = totp.get_info(secret)
         assert current_code == totp_code
 
     def test_parse_provisioning_uri_authentication_test(self):

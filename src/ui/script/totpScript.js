@@ -58,6 +58,7 @@ function updateTimers() {
 function promoteNextCode(rowElement) {
     rowElement.dataset.expiresAt = rowElement.dataset.nextExpiresAt;
     rowElement.querySelector(".currentCodeAnchor").textContent = rowElement.dataset.nextCode;
+    rowElement.querySelector(".remainingTimeAnchor").textContent = rowElement.dataset.interval;
 }
 
 /**
@@ -73,14 +74,17 @@ async function getInfoHandler(rowElement) {
     rowElement.dataset.nextCode = result.data.next_code;
     rowElement.dataset.expiresAt = result.data.expires_at;
     rowElement.dataset.nextExpiresAt = result.data.next_expires_at;
+    rowElement.dataset.interval = result.data.interval;
 }
 
 /**
  * Add a secret to the storage, get data, and display it.
  */
 async function addSecretHandler() {
-    const secret = document.getElementById("secretInput").value;
-    const name = document.getElementById("nameInput").value;
+    const secretInput = document.getElementById("secretInput")
+    const nameInput = document.getElementById("nameInput")
+    const secret = secretInput.value;
+    const name = nameInput.value;
 
     const result = await callApi(() => window.pywebview.api.totp.add_secret_handler(secret, name))
     if (result.status !== CONSTANTS.STATUS_SUCCESS) {
@@ -90,6 +94,9 @@ async function addSecretHandler() {
     // Name is re-sent from the backend - not optimal, but happens just at adding. Worth the
     // compromise for simplicity.
     await addRow(result.data);
+
+    secretInput.value = "";
+    nameInput.value = "";
 }
 
 async function addSecretQRHandler() {
@@ -142,6 +149,7 @@ async function addRow(info) {
     const nextCode = info.next_code;
     const expiresAt = info.expires_at;
     const nextExpiresAt = info.next_expires_at;
+    const interval = info.interval;
 
     const rowsElement = document.getElementById("rowsDiv");
 
@@ -157,6 +165,7 @@ async function addRow(info) {
     rowElement.dataset.nextCode = nextCode;
     rowElement.dataset.expiresAt = expiresAt;
     rowElement.dataset.nextExpiresAt = nextExpiresAt;
+    rowElement.dataset.interval = interval;
 
     const remainingMs = expiresAt - Date.now();
     const remainingS = Math.ceil(remainingMs / 1000);

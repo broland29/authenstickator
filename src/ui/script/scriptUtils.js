@@ -6,11 +6,10 @@ const FETCH_ERROR = (path) => `Fetching from path ${path} failed`;
  * the whole result for possible further processing.
  */
 async function callApi(apiFunction, silent = false) {
-    clearMessage();
-
     const result = await apiFunction();
 
     if (!silent) {
+        clearMessage();
         if (result.status === CONSTANTS.STATUS_ERROR) {
             showError(result.error_message);
         } else if (result.status === CONSTANTS.STATUS_SUCCESS && result.success_message !== null) {
@@ -65,6 +64,14 @@ async function loadView(viewPath) {
     }
     document.getElementById("viewDiv").innerHTML = await response.text();
 
+    // If registering, now the register elements are ready, event listeners can be added.
+    if (viewPath.endsWith("register.html")) {
+        await addNewPasswordInputListener();
+    }
+    // If logging in, now login elements are ready, event listeners can be added,
+    if (viewPath.endsWith("login.html")) {
+        await addPasswordInputListener();
+    }
     // The TOTP view requires extra initialization after it is loaded.
     if (viewPath.endsWith("totp.html")) {
         await initTOTP();

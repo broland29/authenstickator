@@ -16,6 +16,7 @@ class Main:
 
     def main(self):
         index_path = Path(__file__).parent / "ui" / "view" / "index.html"
+        logo_path = Path(__file__).parent / "ui" / "view" / "res" / "logo.png"
 
         width = self.config.get("pywebview.width")
         height = self.config.get("pywebview.height")
@@ -26,7 +27,7 @@ class Main:
         js_api.set_window(window)
 
         LoggerManager.disable_pywebview_logger()
-        webview.start(debug=self.config.get("pywebview.debug"))
+        webview.start(debug=self.config.get("pywebview.debug"), icon=str(logo_path))
 
 
 if __name__ == "__main__":

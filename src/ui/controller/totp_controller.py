@@ -45,13 +45,15 @@ class TOTPController:
         if secret is None:
             return None
 
-        current_code, next_code, expires_at, next_expires_at = (self.totp.get_info(secret))
+        current_code, next_code, expires_at, next_expires_at, interval = (self.totp.get_info(
+            secret))
         return {
             "name": name,
             "current_code": current_code,
             "next_code": next_code,
             "expires_at": expires_at,
-            "next_expires_at": next_expires_at
+            "next_expires_at": next_expires_at,
+            "interval": interval
         }
 
     def get_info_handler(self, name) -> dict:
@@ -79,6 +81,9 @@ class TOTPController:
 
     def add_secret_handler(self, secret: str, name: str):
         self.logger.log_enter("add_secret_handler")
+
+        if not secret and not name:
+            return Response.error("Name and secret cannot be empty.")
 
         if not secret:
             return Response.error("Secret cannot be empty.")
