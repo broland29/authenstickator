@@ -22,8 +22,8 @@ class Main:
         height = self.config.get("pywebview.height")
 
         js_api = MasterController()
-        window = webview.create_window("usb2fa", index_path.as_uri(), js_api=js_api, width=width,
-                                       height=height)
+        window = webview.create_window("Authenstickator", index_path.as_uri(), js_api=js_api,
+                                       width=width, height=height)
         js_api.set_window(window)
 
         LoggerManager.disable_pywebview_logger()

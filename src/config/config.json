@@ -5,8 +5,8 @@
   },
   "pywebview": {
     "debug": false,
-    "width": 1080,
-    "height": 2424
+    "width": 450,
+    "height": 800
   },
   "tpm": {
     "enabled": true,
