@@ -11,46 +11,51 @@ from src.tpm.tpm import TPM
 
 class StorageManager:
     """
-    Storage is a dictionary, where the key is the name, and the value is the secret. Name shall
-    be unique.
+    Singleton responsible for storing secrets and names.
 
-    When read from a QR (todo), the QR is an encoded URL, which contains the name and the secret
-    as well, for example:
-    https://authenticationtest.com/totp/?secret=I65VU7K5ZQL7WB4E&name=Test => name =
-    authenticationtest, secret = I65VU7K5ZQL7WB4E
+    Storage is a dictionary (JSON), where the key is the name, and the value is the secret. Name
+    shall be unique.
 
-    When added manually, name is required to be added as well.
-
-    Instead of using the Context Manager Protocol (Python with syntax), i save the file at each
-    modification. This way, there is no need to do cleanup, and if the app crashes, the file is
+    Instead of using the Context Manager Protocol (Python "with" syntax), the file is saved after
+    each modification. This way, there is no need to do cleanup, and if the app crashes, the file is
     still up to date. Adds/ deletes are not that frequent, so the performance impact is negligible.
     """
+    instance = None
     logger: LoggerManager
     config: ConfigManager
     tpm: AbstractTPM
     encryptor: AbstractEncryptor
+    storage: dict[str, str]
 
-    def __init__(self, user_password: str):
-        self.logger = LoggerManager()
-        self.config = ConfigManager()
-        self.tpm = TPM()
-        self.encryptor = Encryptor(user_password, self.tpm.get_secret())
+    def __new__(cls, user_password: str):
+        if cls.instance is not None:
+            return cls.instance
 
-        storage_file_path = self.config.get("storage.storage_file_path")
+        cls.instance = super().__new__(cls)
+        cls.instance.logger = LoggerManager()
+        cls.instance.config = ConfigManager()
+        cls.instance.tpm = TPM()
+        cls.instance.encryptor = Encryptor(user_password, cls.instance.tpm.get_secret())
+
+        storage_file_path = cls.instance.config.get("storage.storage_file_path")
 
         if not os.path.exists(storage_file_path):
-            self.logger.warning(f"Storage file {storage_file_path} not found, no secrets loaded.")
-            self.storage = {}
-            return
+            cls.instance.logger.warning(f"File {storage_file_path} not found, no secrets loaded.")
+            cls.instance.storage = {}
+            return cls.instance
 
         with open(storage_file_path, "rb") as file:
             content_encrypted = file.read()
-            content = self.encryptor.decrypt(content_encrypted)
-            self.storage = json.loads(content)
+            content = cls.instance.encryptor.decrypt(content_encrypted)
+            cls.instance.storage = json.loads(content)
+            return cls.instance
+
+    def __init__(self, user_password: str):
+        pass
 
     def add_secret(self, secret: str, name: str) -> bool:
         """
-        Add a new secret to storage.
+        Add a new secret to storage. Returns True on success, False on failure.
         """
         if name in self.storage:
             self.logger.warning(f"Secret for {name} already exists.")
@@ -61,7 +66,7 @@ class StorageManager:
 
     def remove_secret(self, name: str) -> bool:
         """
-        Remove an existing secret from storage.
+        Remove an existing secret from storage. Returns True on success, False on failure.
         """
         if name not in self.storage:
             self.logger.warning(f"Secret for {name} does not exist.")
@@ -72,7 +77,7 @@ class StorageManager:
 
     def get_secret(self, name: str) -> str | None:
         """
-        Retrieve secret from storage with the specified name.
+        Retrieve secret with the specified name. Returns True on success, False on failure.
         """
         if name not in self.storage:
             self.logger.warning(f"Secret for {name} is missing.")

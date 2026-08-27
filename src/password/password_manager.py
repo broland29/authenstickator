@@ -2,21 +2,21 @@ import os.path
 from typing import Final
 
 from src.config.config_manager import ConfigManager
+from src.hasher.abstract_hasher import AbstractHasher
 from src.hasher.hasher import Hasher
 from src.logger.logger_manager import LoggerManager
 
 
 class PasswordManager:
-    instance = None
-
     # Limits based on NIST SP 800-63B-4, July 2025:
     # https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63B-4.pdf Section 3.1.1.2
     MIN_LENGTH_HARD_LIMIT: Final[int] = 15  # Verifiers SHALL require passwords minimum 15
     MAX_LENGTH_HARD_LIMIT: Final[int] = 100  # Verifiers SHOULD permit at least 64 chars
 
+    instance = None
     logger: LoggerManager
     config: ConfigManager
-    hasher: Hasher
+    hasher: AbstractHasher
     min_length: int
     max_length: int
 
@@ -29,15 +29,19 @@ class PasswordManager:
         cls.config = ConfigManager()
         cls.hasher = Hasher()
 
-        config_min_length = cls.config.get("password.min_length")
-        if config_min_length < cls.MIN_LENGTH_HARD_LIMIT:
+        min_length = cls.config.get("password.min_length")
+        if min_length < cls.MIN_LENGTH_HARD_LIMIT:
             cls.logger.warning(
-                f"Overriding minimum password length parameter {config_min_length} with "
-                f"{cls.MIN_LENGTH_HARD_LIMIT}, since too weak")
-            cls.min_length = cls.MIN_LENGTH_HARD_LIMIT
-        else:
-            cls.min_length = config_min_length
-        cls.max_length = cls.MAX_LENGTH_HARD_LIMIT
+                f"Overriding min_length parameter {min_length} with {cls.MIN_LENGTH_HARD_LIMIT}")
+            min_length = cls.MIN_LENGTH_HARD_LIMIT
+        cls.min_length = min_length
+
+        max_length = cls.config.get("password.max_length")
+        if max_length > cls.MAX_LENGTH_HARD_LIMIT:
+            cls.logger.warning(
+                f"Overriding max_length parameter {max_length} with {cls.MAX_LENGTH_HARD_LIMIT}")
+            max_length = cls.MAX_LENGTH_HARD_LIMIT
+        cls.max_length = max_length
 
         return cls.instance
 

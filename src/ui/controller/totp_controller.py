@@ -112,9 +112,10 @@ class TOTPController:
         if uri is None:
             return Response.error("QR code image is invalid.")
 
-        secret, name = self.totp.parse_provisioning_uri(uri)
-        if secret is None or name is None:
-            return Response.error("Secret is invalid.")
+        parsed_uri = self.totp.parse_provisioning_uri(uri)
+        if parsed_uri is None:
+            return Response.error("The provisioning URI (encoded by the QR code) is invalid.")
+        secret, name = parsed_uri
 
         added = self.storage.add_secret(secret, name)
         if not added:

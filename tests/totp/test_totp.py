@@ -18,8 +18,9 @@ class TestTOTP:
         assert totp_code is not None
 
         totp = TOTPManager()
-        current_code, _, _, _, _ = totp.get_info(secret)
+        current_code, _, _, _, interval = totp.get_info(secret)
         assert current_code == totp_code
+        assert interval == 30
 
     def test_parse_provisioning_uri_authentication_test(self):
         provisioning_uri = "otpauth://totp/totp@authenticationtest.com?secret=I65VU7K5ZQL7WB4E"

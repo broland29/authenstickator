@@ -6,13 +6,14 @@ from src.tpm.abstract_tpm import AbstractTPM
 
 class NoTPM(AbstractTPM):
     """
-    TPM class that does nothing but encode and decode the plaintext.
+    TPM class that returns a hardcoded secret without actually using the TPM. To be used when the
+    configs opt out of TPM usage.
     """
     logger: LoggerManager
 
     def __init__(self):
         self.logger = LoggerManager()
-        self.logger.info("No TPM initialized")
+        self.logger.info("NoTPM initialized")
 
     @override
     def setup_secret(self) -> None:

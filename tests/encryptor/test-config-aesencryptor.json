@@ -1,0 +1,9 @@
+{
+  "encryptor": {
+    "type": "AES"
+  },
+  "logger": {
+    "log_level": "DEBUG",
+    "log_file_path": "log.txt"
+  }
+}

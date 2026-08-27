@@ -7,7 +7,7 @@ from src.tpm.linux_tpm import LinuxTPM
 from src.tpm.no_tpm import NoTPM
 
 
-class TPM():
+class TPM:
     """
     Picks the right TPM class based on the current platform and the config file.
     """

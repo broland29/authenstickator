@@ -6,7 +6,7 @@ from src.encryptor.aes_encryptor import AESEncryptor
 
 class Encryptor:
     """
-    Picks the right encryptor based on the config file. Currently, only AES is supported.
+    Encryptor singleton: picks the encryptor from config. Currently, only AES is supported.
     """
     instance: AbstractEncryptor = None
 

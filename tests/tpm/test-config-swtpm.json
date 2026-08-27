@@ -1,33 +1,14 @@
 {
-  "encryptor": {
-    "type": "AES"
-  },
-  "hasher": {
-    "type": "ARGON2"
-  },
   "logger": {
     "log_level": "DEBUG",
     "log_file_path": "log.txt"
-  },
-  "password": {
-    "min_length": 15,
-    "max_length": 100,
-    "hash_file_path": "hash.txt"
-  },
-  "storage": {
-    "storage_file_path": "storage.txt"
-  },
-  "pywebview": {
-    "debug": false,
-    "width": 450,
-    "height": 800
   },
   "tpm": {
     "enabled": true,
     "virtual": {
       "fapi_profile": "P_RSA2048SHA256",
       "fapi_profile_url": "https://raw.githubusercontent.com/tpm2-software/tpm2-tss/3.2.0/dist/fapi-profiles/P_RSA2048SHA256.json",
-      "enabled": false,
+      "enabled": true,
       "tpm_path": "/tmp/vtpm",
       "tpm_port": 2321,
       "tpm_ctrl_port": 2322,

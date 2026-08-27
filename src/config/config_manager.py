@@ -14,26 +14,26 @@ class ConfigManager:
 
     instance = None
     config_file_path: Path = None
+    config: dict[str, str | dict]
 
     def __new__(cls):
         if cls.instance is not None:
             return cls.instance
 
-        instance = super().__new__(cls)
+        cls.instance = super().__new__(cls)
 
         if cls.LOCAL_CONFIG_FILE_PATH.exists():
-            cls.config_file_path = cls.LOCAL_CONFIG_FILE_PATH
+            cls.instance.config_file_path = cls.LOCAL_CONFIG_FILE_PATH
         elif cls.CONFIG_FILE_PATH.exists():
-            cls.config_file_path = cls.CONFIG_FILE_PATH
+            cls.instance.config_file_path = cls.CONFIG_FILE_PATH
         else:
             raise FileNotFoundError(f"No config file found! Searched at"
                                     f" {cls.LOCAL_CONFIG_FILE_PATH} and {cls.CONFIG_FILE_PATH}")
 
-        with open(cls.config_file_path, "r") as file:
-            instance.config = json.load(file)
+        with open(cls.instance.config_file_path, "r") as file:
+            cls.instance.config = json.load(file)
 
-        cls.instance = instance
-        return instance
+        return cls.instance
 
     def log_config(self, logger: "LoggerManager"):
         """

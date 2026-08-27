@@ -5,31 +5,28 @@ import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
 from src.config.config_manager import ConfigManager
+from tests.test_utils import TestUtils
 
 
 @pytest.fixture
-def cleanup_singleton(request):
+def cleanup_storage(stub_config):
     """
-    Clears the instance of a singleton. Needed for parametrized tests that use singletons;
-    otherwise instance is preserved across runs.
-    """
-    singleton_class = request.param
-    singleton_class.instance = None
-    yield
-    singleton_class.instance = None
-
-
-@pytest.fixture
-def cleanup_storage():
-    """
-    Deletes the test storage file before and after test.
+    Deletes the tests storage file before and after tests.
     """
     config = ConfigManager()
     path = Path(config.get("storage.storage_file_path"))
+    print(path.absolute())
 
     path.unlink(missing_ok=True)
     yield
     path.unlink(missing_ok=True)
+
+
+@pytest.fixture(autouse=True)
+def cleanup_singletons():
+    TestUtils.cleanup_singletons()
+    yield
+    TestUtils.cleanup_singletons()
 
 
 @pytest.fixture

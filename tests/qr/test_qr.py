@@ -39,3 +39,11 @@ class TestQR:
         qr = QRManager()
         decoded = qr.decode(TEST_DIR / "test-qr-invalid.jpeg")
         assert decoded is None
+
+    def test_qr_bad_path(self):
+        """
+        Test with a path which does not point to a file.
+        """
+        qr = QRManager()
+        decoded = qr.decode("not-a-file")
+        assert decoded is None

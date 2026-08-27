@@ -1,15 +1,15 @@
 {
-  "logger": {
-    "log_level": "INFO",
-    "log_file_path": "log.txt"
+  "encryptor": {
+    "type": "AES"
   },
-  "tpm": {
-    "enabled": false
+  "logger": {
+    "log_level": "DEBUG",
+    "log_file_path": "log.txt"
   },
   "storage": {
     "storage_file_path": "storage.txt"
   },
-  "encryptor": {
-    "type": "AES"
+  "tpm": {
+    "enabled": false
   }
 }

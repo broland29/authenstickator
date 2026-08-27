@@ -1,13 +1,16 @@
 import logging
 from logging.handlers import RotatingFileHandler
+from typing import Final
 
 from src.config.config_manager import ConfigManager
 
 
 class LoggerManager:
     """
-    Singleton logger for the whole app. Usual levels: INFO, WARNING, ERROR.
+    Singleton logger for the whole app.
     """
+    CONSOLE_HANDLER_NAME: Final[str] = "console"
+    FILE_HANDLER_NAME: Final[str] = "file"
     instance = None
 
     def __new__(cls):
@@ -16,11 +19,18 @@ class LoggerManager:
 
         cls.instance = super().__new__(cls)
 
+        # In some cases (ex: in tests where singleton is cleared to None), the instance is none but
+        # the handlers are in place from previous initialization.
+        logger = logging.getLogger()
+        existing_handler_names = {handler.name for handler in logger.handlers}
+        if {cls.CONSOLE_HANDLER_NAME, cls.FILE_HANDLER_NAME}.issubset(existing_handler_names):
+            cls.instance.logger = logger
+            return cls.instance
+
         config = ConfigManager()
         log_level = config.get("logger.log_level")
         log_file_path = config.get("logger.log_file_path")
 
-        logger = logging.getLogger()
         logger.setLevel(log_level)
 
         formatter = logging.Formatter(
@@ -30,10 +40,12 @@ class LoggerManager:
 
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
+        console_handler.set_name(cls.CONSOLE_HANDLER_NAME)
         logger.addHandler(console_handler)
 
         file_handler = RotatingFileHandler(log_file_path, maxBytes=1044 * 1024)
         file_handler.setFormatter(formatter)
+        file_handler.set_name(cls.FILE_HANDLER_NAME)
         logger.addHandler(file_handler)
 
         logger.info("Logger configured. Starting the application.")
@@ -51,7 +63,7 @@ class LoggerManager:
     @staticmethod
     def disable_pywebview_logger():
         """
-        Pywebview has its own logger; without the following lines, logs will be duplicated (if
+        pywebview has its own logger; without the following lines, logs will be duplicated (if
         pywebview runs in debug mode).
         """
         pywebview_logger = logging.getLogger("pywebview")
