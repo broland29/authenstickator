@@ -145,8 +145,11 @@ async function changePasswordHandler() {
         changePasswordButton.innerText = "Change password"
         return;
     }
+    // On Linux, file:// protocol, succeeds is response.ok=false, response.status=0.
+    // On Windows, HTTP protocol, success is response.ok=true, response.status=200.
+    // So for both cases, failure can be expressed as response.ok=false, response.status !==0
     const response = await fetch(VIEW_PATH.CHANGE_PASSWORD)
-    if (response.status !== 0) {
+    if (!response.ok && response.status !== 0) {
         throw new Error(FETCH_ERROR(VIEW_PATH.CHANGE_PASSWORD));
     }
     changePasswordDiv.innerHTML = await response.text();
