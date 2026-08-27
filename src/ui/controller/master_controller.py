@@ -27,11 +27,11 @@ class MasterController:
     """
     _logger: LoggerManager
     _config: ConfigManager
-    _change_password: ChangePasswordController
-    _login: LoginController
-    _register: RegisterController
-    _totp: TOTPController
-    _password: PasswordManager
+    change_password: ChangePasswordController
+    login: LoginController
+    register: RegisterController
+    totp: TOTPController
+    password: PasswordManager
     _window: Window
 
     def __init__(self):
@@ -47,11 +47,11 @@ class MasterController:
         """
         self._logger = LoggerManager()
         self._config = ConfigManager()
-        self._change_password = ChangePasswordController(self)
-        self._login = LoginController(self)
-        self._register = RegisterController(self)
-        self._totp = TOTPController(self)
-        self._password = PasswordManager()
+        self.change_password = ChangePasswordController(self)
+        self.login = LoginController(self)
+        self.register = RegisterController(self)
+        self.totp = TOTPController(self)
+        self.password = PasswordManager()
 
     def set_window(self, window: Window):
         """
@@ -63,8 +63,8 @@ class MasterController:
         """
         To be called when user password provided correctly.
         """
-        self._totp.init_with_user_password(user_password)
-        self._change_password.init_with_user_password(user_password)
+        self.totp.init_with_user_password(user_password)
+        self.change_password.init_with_user_password(user_password)
 
     def get_response_constants(self) -> dict[str, str]:
         """
@@ -85,7 +85,7 @@ class MasterController:
         Called when pywebview is ready => when UI is loaded.
         """
         self._logger.log_enter("startup_handler")
-        if self._password.previous_password_exists():
+        if self.password.previous_password_exists():
             self.load_view(ViewPath.LOGIN)
         else:
             self.load_view(ViewPath.REGISTER)
