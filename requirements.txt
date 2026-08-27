@@ -38,7 +38,7 @@ scandir==1.10.0
 singledispatch==4.1.2
 six==1.17.0
 tomli==2.4.1
-tpm2-pytss==3.0.0
+tpm2-pytss==3.0.0 ; sys_platform == "linux"
 typing_extensions==4.16.0
 urllib3==2.7.0
 virtualenv==21.7.5
