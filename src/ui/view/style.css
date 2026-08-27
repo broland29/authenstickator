@@ -56,6 +56,10 @@ body {
     flex-grow: 1;
 }
 
+#changePasswordDiv {
+    display: flex;
+}
+
 h1, h2, h3 {
     text-align: center;
 }
@@ -123,6 +127,10 @@ button:active {
 
 .secret-label {
     width: 60px;
+}
+
+.new-password-label {
+    width: 125px
 }
 
 .password-content {
