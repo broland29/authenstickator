@@ -25,14 +25,14 @@ class MasterController:
     Passes itself as reference for dedicated controllers; they shall not communicate with window
     directly.
     """
-    logger: LoggerManager
-    config: ConfigManager
-    change_password: ChangePasswordController
-    login: LoginController
-    register: RegisterController
-    totp: TOTPController
-    password: PasswordManager
-    window: Window
+    _logger: LoggerManager
+    _config: ConfigManager
+    _change_password: ChangePasswordController
+    _login: LoginController
+    _register: RegisterController
+    _totp: TOTPController
+    _password: PasswordManager
+    _window: Window
 
     def __init__(self):
         """
@@ -45,47 +45,47 @@ class MasterController:
             - but they need to be set here so that it is seen by js (ex: window.pywebview.api.totp)
             - set later by LoginController/RegisterController using init_with_user_password()
         """
-        self.logger = LoggerManager()
-        self.config = ConfigManager()
-        self.change_password = ChangePasswordController(self)
-        self.login = LoginController(self)
-        self.register = RegisterController(self)
-        self.totp = TOTPController(self)
-        self.password = PasswordManager()
+        self._logger = LoggerManager()
+        self._config = ConfigManager()
+        self._change_password = ChangePasswordController(self)
+        self._login = LoginController(self)
+        self._register = RegisterController(self)
+        self._totp = TOTPController(self)
+        self._password = PasswordManager()
 
     def set_window(self, window: Window):
         """
         To be called when window ready.
         """
-        self.window = window
+        self._window = window
 
     def init_with_user_password(self, user_password: str):
         """
         To be called when user password provided correctly.
         """
-        self.totp.init_with_user_password(user_password)
-        self.change_password.init_with_user_password(user_password)
+        self._totp.init_with_user_password(user_password)
+        self._change_password.init_with_user_password(user_password)
 
     def get_response_constants(self) -> dict[str, str]:
         """
         Method which sends response constants to UI upon startup.
         """
-        self.logger.log_enter("get_response_constants")
+        self._logger.log_enter("get_response_constants")
         return Response.get_constants()
 
     def get_view_path_constants(self) -> dict[str, str]:
         """
         Method which sends view path constants to UI upon startup.
         """
-        self.logger.log_enter("get_view_path_constants")
+        self._logger.log_enter("get_view_path_constants")
         return ViewPath.get_constants()
 
     def startup_handler(self) -> ResponseType:
         """
         Called when pywebview is ready => when UI is loaded.
         """
-        self.logger.log_enter("startup_handler")
-        if self.password.previous_password_exists():
+        self._logger.log_enter("startup_handler")
+        if self._password.previous_password_exists():
             self.load_view(ViewPath.LOGIN)
         else:
             self.load_view(ViewPath.REGISTER)
@@ -95,7 +95,7 @@ class MasterController:
         """
         Tells JS to load the given view.
         """
-        self.window.evaluate_js(f"loadView('{view_path}')")
+        self._window.evaluate_js(f"loadView('{view_path}')")
 
     def open_image_dialog(self) -> str | None:
         """
@@ -103,7 +103,7 @@ class MasterController:
         returns the path of the selected file.
         See: https://pywebview.flowrl.com/examples/open_file_dialog.html.
         """
-        result = self.window.create_file_dialog(
+        result = self._window.create_file_dialog(
             webview.FileDialog.OPEN,
             allow_multiple=False,
             file_types=("Image Files (*.bmp;*.jpg;*.jpeg;*.png;*.gif)", "All files (*.*)")
