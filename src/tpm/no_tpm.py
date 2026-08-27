@@ -8,9 +8,10 @@ class NoTPM(AbstractTPM):
     """
     TPM class that does nothing but encode and decode the plaintext.
     """
-    logger = LoggerManager()
+    logger: LoggerManager
 
     def __init__(self):
+        self.logger = LoggerManager()
         self.logger.info("No TPM initialized")
 
     @override

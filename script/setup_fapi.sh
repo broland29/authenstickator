@@ -23,10 +23,9 @@ echo "========================================"
 
 echo "[1/7] Installing build dependencies..."
 apt-get update
-# Added 'jq' to robustly edit the JSON config
 apt-get install -y build-essential autoconf autoconf-archive automake \
   libtool pkg-config gcc git libssl-dev libcurl4-openssl-dev \
-  libjson-c-dev uuid-dev jq
+  libjson-c-dev uuid-dev jq dpkg-dev
 
 echo "[2/7] Setting up 'tss' user and group..."
 if ! id -u tss > /dev/null 2>&1; then
@@ -47,7 +46,18 @@ git clone https://github.com/tpm2-software/tpm2-tss.git
 cd tpm2-tss
 git checkout 4.1.3
 ./bootstrap
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-udevrulesdir=/etc/udev/rules.d
+
+# FIX: Retrieve Ubuntu's exact multiarch directory so we overwrite the OS-provided
+# libraries instead of placing them in /usr/lib where they get ignored by ld.so.
+MULTIARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --localstatedir=/var \
+  --libdir=/usr/lib/$MULTIARCH \
+  --with-udevrulesdir=/etc/udev/rules.d
+
 make -j$(nproc)
 make install
 
