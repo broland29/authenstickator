@@ -58,6 +58,8 @@ body {
 
 #changePasswordDiv {
     display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 h1, h2, h3 {
@@ -130,7 +132,7 @@ button:active {
 }
 
 .new-password-label {
-    width: 125px
+    width: 90px
 }
 
 .password-content {
