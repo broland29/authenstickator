@@ -34,6 +34,6 @@ class TPM:
             cls.instance = WindowsTPM()
             return cls.instance
 
-        logger.log_error(f"TPM not implemented for OS {os_name}, continuing without TPM")
+        logger.error(f"TPM not implemented for OS {os_name}, continuing without TPM")
         cls.instance = NoTPM()
         return cls.instance

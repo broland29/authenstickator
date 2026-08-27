@@ -1,3 +1,4 @@
+import platform
 from pathlib import Path
 
 import webview
@@ -16,7 +17,6 @@ class Main:
 
     def main(self):
         index_path = Path(__file__).parent / "ui" / "view" / "index.html"
-        logo_path = Path(__file__).parent / "ui" / "view" / "res" / "logo.png"
 
         width = self.config.get("pywebview.width")
         height = self.config.get("pywebview.height")
@@ -27,7 +27,16 @@ class Main:
         js_api.set_window(window)
 
         LoggerManager.disable_pywebview_logger()
-        webview.start(debug=self.config.get("pywebview.debug"), icon=str(logo_path))
+
+        os_name = platform.system()
+        if os_name == "Linux":
+            icon = str(Path(__file__).parent / "ui" / "view" / "res" / "logo.png")
+        elif os_name == "Windows":
+            icon = str(Path(__file__).parent / "ui" / "view" / "res" / "logo.ico")
+        else:
+            self.logger.error(f"Icon not implemented for OS {os_name}, continuing without icon")
+            icon = None
+        webview.start(debug=self.config.get("pywebview.debug"), icon=icon)
 
 
 if __name__ == "__main__":
