@@ -2,6 +2,7 @@ pyinstaller src/main.py ^
     --clean ^
     --name Authenstickator ^
     --icon="src/ui/view/res/logo.ico" ^
+    --noconsole ^
     --add-data "src/config/config.json;src/config" ^
     --add-data "src/ui/view;ui/view" ^
     --add-data "src/ui/script;ui/script" ^
