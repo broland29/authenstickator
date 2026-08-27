@@ -3,8 +3,8 @@ import platform
 from src.config.config_manager import ConfigManager
 from src.logger.logger_manager import LoggerManager
 from src.tpm.abstract_tpm import AbstractTPM
-from src.tpm.linux_tpm import LinuxTPM
 from src.tpm.no_tpm import NoTPM
+from src.tpm.windows_tpm import WindowsTPM
 
 
 class TPM:
@@ -12,10 +12,10 @@ class TPM:
     Picks the right TPM class based on the current platform and the config file.
     """
     instance: AbstractTPM = None
-    logger = LoggerManager()
 
     def __new__(cls):
         config = ConfigManager()
+        logger = LoggerManager()
 
         if cls.instance is not None:
             return cls.instance
@@ -26,9 +26,14 @@ class TPM:
 
         os_name = platform.system()
         if os_name == "Linux":
+            from src.tpm.linux_tpm import LinuxTPM  # the file contains Linux-specific imports!
             cls.instance = LinuxTPM()
             return cls.instance
 
-        cls.logger.log_error(f"TPM not implemented for OS {os_name}, continuing without TPM")
+        if os_name == "Windows":
+            cls.instance = WindowsTPM()
+            return cls.instance
+
+        logger.log_error(f"TPM not implemented for OS {os_name}, continuing without TPM")
         cls.instance = NoTPM()
         return cls.instance
