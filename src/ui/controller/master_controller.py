@@ -24,6 +24,10 @@ class MasterController:
 
     Passes itself as reference for dedicated controllers; they shall not communicate with window
     directly.
+
+    Variables with dunder are like this for a purpose: if window is without _, pywebview on
+    Windows crashes :D (it tries to serialize it to JSON so JavaScript can access it,
+    or something like that)
     """
     _logger: LoggerManager
     _config: ConfigManager

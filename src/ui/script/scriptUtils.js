@@ -57,10 +57,11 @@ function clearMessage() {
  * Changes the view (inside index.html) to the view at path viewPath.
  */
 async function loadView(viewPath) {
-    // If fetch succeeds, response.ok is still false, The response is not a regular HTTP response.
-    // Success is signaled by status 0.
+    // On Linux, file:// protocol, succeeds is response.ok=false, response.status=0.
+    // On Windows, HTTP protocol, success is response.ok=true, response.status=200.
+    // So for both cases, failure can be expressed as response.ok=false, response.status !==0
     const response = await fetch(viewPath);
-    if (response.status !== 0) {
+    if (!response.ok && response.status !== 0) {
         throw new Error(FETCH_ERROR(viewPath));
     }
     document.getElementById("viewDiv").innerHTML = await response.text();
