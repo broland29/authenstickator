@@ -9,7 +9,7 @@ from src.storage.storage_manager import StorageManager
 from src.tpm.abstract_tpm import AbstractTPM
 from src.tpm.tpm import TPM
 from src.ui.controller.response import Response
-from ui.controller.response import ResponseType
+from src.ui.controller.response import ResponseType
 
 if TYPE_CHECKING:
     from src.ui.controller.master_controller import MasterController
