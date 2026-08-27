@@ -1,4 +1,6 @@
-let totpTimer = null;
+/* Scripts for totp.html */
+
+let totpIntervalID = null;
 
 /**
  * To be called when switching to this view, after TOTPController is fully initialized.
@@ -9,11 +11,11 @@ async function initTOTP() {
 }
 
 /**
- * Asks for all the info in the storage.
+ * Asks for all the information.
  */
 async function getAllInfo() {
     const result = await window.pywebview.api.totp.get_all_info_handler();
-    if (result.status !== CONSTANTS.STATUS_SUCCESS) {
+    if (result.status !== RESPONSE.STATUS_SUCCESS) {
         return;
     }
     for (const info of result.data) {
@@ -25,10 +27,10 @@ async function getAllInfo() {
  * Starts a repeated call to updateTimers.
  */
 async function startTOTPTimer() {
-    if (totpTimer !== null) {
+    if (totpIntervalID !== null) {
         return;
     }
-    totpTimer = setInterval(updateTimers, 1000);
+    totpIntervalID = setInterval(updateTimers, 1000);  // Call each second.
 }
 
 /**
@@ -48,7 +50,8 @@ function updateTimers() {
         }
 
         // Update the remaining time shown.
-        rowElement.querySelector(".remainingTimeAnchor").textContent = Math.ceil(remainingMs / 1000);
+        rowElement.querySelector(".remainingTimeAnchor").textContent =
+            Math.ceil(remainingMs / 1000);
     }
 }
 
@@ -62,12 +65,13 @@ function promoteNextCode(rowElement) {
 }
 
 /**
- * Gets info for secret associated with the name inside rowElement.
+ * Gets info for secret associated with the name inside rowElement, stores result in dataset.
  */
 async function getInfoHandler(rowElement) {
     const name = rowElement.dataset.name;
-    const result = await callApi(() => window.pywebview.api.totp.get_info_handler(name), true)
-    if (result.status !== CONSTANTS.STATUS_SUCCESS) {
+    const result = await callApi(() =>
+        window.pywebview.api.totp.get_info_handler(name), true)
+    if (result.status !== RESPONSE.STATUS_SUCCESS) {
         return;
     }
     rowElement.dataset.currentCode = result.data.current_code;
@@ -78,7 +82,7 @@ async function getInfoHandler(rowElement) {
 }
 
 /**
- * Add a secret to the storage, get data, and display it.
+ * Adds a secret to the storage based on user input, and displays info.
  */
 async function addSecretHandler() {
     const secretInput = document.getElementById("secretInput")
@@ -86,8 +90,9 @@ async function addSecretHandler() {
     const secret = secretInput.value;
     const name = nameInput.value;
 
-    const result = await callApi(() => window.pywebview.api.totp.add_secret_handler(secret, name))
-    if (result.status !== CONSTANTS.STATUS_SUCCESS) {
+    const result = await callApi(() =>
+        window.pywebview.api.totp.add_secret_handler(secret, name))
+    if (result.status !== RESPONSE.STATUS_SUCCESS) {
         return;
     }
 
@@ -95,13 +100,17 @@ async function addSecretHandler() {
     // compromise for simplicity.
     await addRow(result.data);
 
+    // Wipe inputs.
     secretInput.value = "";
     nameInput.value = "";
 }
 
+/**
+ * Delegates initiation of image dialog for the QR code, and displays info.
+ */
 async function addSecretQRHandler() {
     const result = await callApi(() => window.pywebview.api.totp.add_secret_qr_handler())
-    if (result.status !== CONSTANTS.STATUS_SUCCESS) {
+    if (result.status !== RESPONSE.STATUS_SUCCESS) {
         return;
     }
 
@@ -116,13 +125,18 @@ async function removeSecretHandler(buttonElement) {
     const name = rowElement.dataset.name;
 
     const result = await callApi(() => window.pywebview.api.totp.remove_secret_handler(name));
-    if (result.status !== CONSTANTS.STATUS_SUCCESS) {
+    if (result.status !== RESPONSE.STATUS_SUCCESS) {
         return;
     }
 
     rowElement.remove();
 }
 
+/**
+ * The changePasswordButton is a toggle. If the button's text is "Cancel", switches it to
+ * "Change password" and hides the change password view. Otherwise, switches text to "Cancel" and
+ * shows the change password view.
+ */
 async function changePasswordHandler() {
     const changePasswordButton = document.getElementById("changePasswordButton");
     const changePasswordDiv = document.getElementById("changePasswordDiv");
@@ -131,9 +145,9 @@ async function changePasswordHandler() {
         changePasswordButton.innerText = "Change password"
         return;
     }
-    const response = await fetch(PASSWORD_CHANGE_HTML_PATH)
+    const response = await fetch(VIEW_PATH.CHANGE_PASSWORD)
     if (response.status !== 0) {
-        throw new Error(FETCH_ERROR(PASSWORD_CHANGE_HTML_PATH));
+        throw new Error(FETCH_ERROR(VIEW_PATH.CHANGE_PASSWORD));
     }
     changePasswordDiv.innerHTML = await response.text();
     changePasswordButton.innerText = "Cancel";
@@ -157,10 +171,10 @@ async function addRow(info) {
     rowElement.className = "rowDiv";
     rowElement.id = name + "RowDiv";
 
-    // needed for removal
+    // Name needed for removal.
     rowElement.dataset.name = name;
 
-    // needed for instant next code retrieval
+    // Data needed for promotion of the next code.
     rowElement.dataset.currentCode = currentCode;
     rowElement.dataset.nextCode = nextCode;
     rowElement.dataset.expiresAt = expiresAt;

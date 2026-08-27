@@ -9,12 +9,16 @@ from src.storage.storage_manager import StorageManager
 from src.tpm.abstract_tpm import AbstractTPM
 from src.tpm.tpm import TPM
 from src.ui.controller.response import Response
+from ui.controller.response import ResponseType
 
 if TYPE_CHECKING:
     from src.ui.controller.master_controller import MasterController
 
 
 class ChangePasswordController:
+    """
+    Controller for changePasswordScript.js
+    """
     logger: LoggerManager
     config: ConfigManager
     master_controller: "MasterController"
@@ -25,8 +29,9 @@ class ChangePasswordController:
 
     def __init__(self, master_controller: "MasterController"):
         """
-        Storage can be loaded only after user password is provided.
+        Storage and encryptor can be loaded only after user password is provided.
         Class has to be initialized before user password available to register for JS API.
+        Rest of the initialization in init_with_user_password.
         """
         self.logger = LoggerManager()
         self.config = ConfigManager()
@@ -36,12 +41,12 @@ class ChangePasswordController:
 
     def init_with_user_password(self, user_password: str):
         """
-        Lazy-loading storage.
+        Lazy-loading storage and encryptor.
         """
         self.storage = StorageManager(user_password)
         self.encryptor = Encryptor(user_password, self.tpm.get_secret())
 
-    def change_password_handler(self, old_password: str, new_password: str):
+    def change_password_handler(self, old_password: str, new_password: str) -> ResponseType:
         self.logger.log_enter("verify_password_handler")
 
         if not self.password.password_matches(old_password):

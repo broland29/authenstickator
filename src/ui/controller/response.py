@@ -1,15 +1,19 @@
-from typing import Final
+from typing import Final, TypeAlias
+
+SuccessType: TypeAlias = dict[str, str]
+ErrorType: TypeAlias = dict[str, str]
+ResponseType: TypeAlias = SuccessType | ErrorType
 
 
 class Response:
     """
-    Return value of API calls - communication convention between UI and backend.
+    Return type of API calls - communication convention between UI and backend.
     """
     STATUS_SUCCESS: Final[str] = "STATUS_SUCCESS"
     STATUS_ERROR: Final[str] = "STATUS_ERROR"
 
     @staticmethod
-    def success(success_message="", data=None):
+    def success(success_message="", data=None) -> SuccessType:
         """
         A successful API call returns success status and, optionally, a success message to display
         for the user + data if the called method should return anything.
@@ -21,7 +25,7 @@ class Response:
         }
 
     @staticmethod
-    def error(error_message=None):
+    def error(error_message=None) -> ErrorType:
         """
         An unsuccessful API call returns error status and an error message to display for the user.
         """
@@ -31,7 +35,7 @@ class Response:
         }
 
     @staticmethod
-    def get_constants() -> dict:
+    def get_constants() -> dict[str, str]:
         """
         Gets the constants representing used for status in API responses.
         """

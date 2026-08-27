@@ -1,3 +1,5 @@
+/* Scripts for register.html */
+
 async function addNewPasswordInputListener() {
     const newPasswordInput = document.getElementById("newPasswordInput")
     const newPasswordButton = document.getElementById("newPasswordButton")
@@ -10,9 +12,10 @@ async function addNewPasswordInputListener() {
 
 async function newPasswordHandler() {
     const password = document.getElementById("newPasswordInput").value;
-    const result = await callApi(() => window.pywebview.api.register.new_password_handler(password))
+    const result = await callApi(() =>
+        window.pywebview.api.register.new_password_handler(password))
 
-    if (result.status === CONSTANTS.STATUS_SUCCESS) {
+    if (result.status === RESPONSE.STATUS_SUCCESS) {
         await loadView(result.data);
     }
 }

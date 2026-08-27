@@ -1,4 +1,5 @@
-const PASSWORD_CHANGE_HTML_PATH = "changepassword.html";
+/* Scripts and constants shared between the other script files. */
+
 const FETCH_ERROR = (path) => `Fetching from path ${path} failed`;
 
 /**
@@ -10,9 +11,9 @@ async function callApi(apiFunction, silent = false) {
 
     if (!silent) {
         clearMessage();
-        if (result.status === CONSTANTS.STATUS_ERROR) {
+        if (result.status === RESPONSE.STATUS_ERROR) {
             showError(result.error_message);
-        } else if (result.status === CONSTANTS.STATUS_SUCCESS && result.success_message !== null) {
+        } else if (result.status === RESPONSE.STATUS_SUCCESS && result.success_message !== null) {
             showSuccess(result.success_message);
         }
     }

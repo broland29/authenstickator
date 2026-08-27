@@ -5,13 +5,16 @@ from src.logger.logger_manager import LoggerManager
 from src.qr.qr_manager import QRManager
 from src.storage.storage_manager import StorageManager
 from src.totp.totp_manager import TOTPManager
-from src.ui.controller.response import Response
+from src.ui.controller.response import Response, ResponseType
 
 if TYPE_CHECKING:
     from src.ui.controller.master_controller import MasterController
 
 
 class TOTPController:
+    """
+    Controller for totpScript.js
+    """
     logger: LoggerManager
     config: ConfigManager
     master_controller: "MasterController"
@@ -23,6 +26,7 @@ class TOTPController:
         """
         Storage can be loaded only after user password is provided.
         Class has to be initialized before user password available to register for JS API.
+        Rest of the initialization in init_with_user_password.
         """
         self.logger = LoggerManager()
         self.config = ConfigManager()
@@ -38,7 +42,7 @@ class TOTPController:
 
     def get_info(self, name, secret=None) -> dict | None:
         """
-        Internal method, since used by get_info_handler and get_all_info_handler as well.
+        Internal method, since used both by get_info_handler and get_all_info_handler.
         """
         if secret is None:
             secret = self.storage.get_secret(name)
@@ -56,7 +60,7 @@ class TOTPController:
             "interval": interval
         }
 
-    def get_info_handler(self, name) -> dict:
+    def get_info_handler(self, name) -> ResponseType:
         self.logger.log_enter("get_info_handler")
 
         info = self.get_info(name)
@@ -65,7 +69,7 @@ class TOTPController:
 
         return Response.success(f"Successfully generated TOTP code for {name}", self.get_info(name))
 
-    def get_all_info_handler(self) -> list[dict]:
+    def get_all_info_handler(self) -> ResponseType:
         self.logger.log_enter("get_all_info_handler")
 
         storage = self.storage.get_storage()
@@ -79,7 +83,7 @@ class TOTPController:
 
         return Response.success("Successfully loaded TOTP codes", all_info)
 
-    def add_secret_handler(self, secret: str, name: str):
+    def add_secret_handler(self, secret: str, name: str) -> ResponseType:
         self.logger.log_enter("add_secret_handler")
 
         if not secret and not name:
@@ -101,7 +105,7 @@ class TOTPController:
 
         return Response.success(f"Secret for {name} added successfully", self.get_info(name))
 
-    def add_secret_qr_handler(self):
+    def add_secret_qr_handler(self) -> ResponseType:
         self.logger.log_enter("add_secret_qr_handler")
 
         image_path = self.master_controller.open_image_dialog()
@@ -123,7 +127,7 @@ class TOTPController:
 
         return Response.success(f"Secret for {name} added successfully", self.get_info(name))
 
-    def remove_secret_handler(self, name):
+    def remove_secret_handler(self, name) -> ResponseType:
         self.logger.log_enter("remove_secret_handler")
         removed = self.storage.remove_secret(name)
         if not removed:

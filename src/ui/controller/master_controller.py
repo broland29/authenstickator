@@ -7,9 +7,9 @@ from src.password.password_manager import PasswordManager
 from src.ui.controller.change_password_controller import ChangePasswordController
 from src.ui.controller.login_controller import LoginController
 from src.ui.controller.register_controller import RegisterController
-from src.ui.controller.response import Response
+from src.ui.controller.response import Response, ResponseType
 from src.ui.controller.totp_controller import TOTPController
-from src.ui.controller.view import View
+from src.ui.controller.view_path import ViewPath
 
 
 class MasterController:
@@ -25,7 +25,6 @@ class MasterController:
     Passes itself as reference for dedicated controllers; they shall not communicate with window
     directly.
     """
-
     logger: LoggerManager
     config: ConfigManager
     change_password: ChangePasswordController
@@ -41,10 +40,10 @@ class MasterController:
         - window:
             - created by webview.create_window, which requires as argument this class
             - set later using set_window()
-        - totp:
-            - requires user password for proper functioning
-            - but needs to be set here so that it is seen as window.pywebview.api.totp
-            - set later by LoginController/RegisterController using init_totp_controller()
+        - totp, change_password:
+            - they require user password for proper functioning
+            - but they need to be set here so that it is seen by js (ex: window.pywebview.api.totp)
+            - set later by LoginController/RegisterController using init_with_user_password()
         """
         self.logger = LoggerManager()
         self.config = ConfigManager()
@@ -55,31 +54,48 @@ class MasterController:
         self.password = PasswordManager()
 
     def set_window(self, window: Window):
+        """
+        To be called when window ready.
+        """
         self.window = window
 
     def init_with_user_password(self, user_password: str):
+        """
+        To be called when user password provided correctly.
+        """
         self.totp.init_with_user_password(user_password)
         self.change_password.init_with_user_password(user_password)
 
-    def get_constants_handler(self):
-        self.logger.log_enter("get_constants_handler")
+    def get_response_constants(self) -> dict[str, str]:
+        """
+        Method which sends response constants to UI upon startup.
+        """
+        self.logger.log_enter("get_response_constants")
         return Response.get_constants()
 
-    def startup_handler(self):
+    def get_view_path_constants(self) -> dict[str, str]:
+        """
+        Method which sends view path constants to UI upon startup.
+        """
+        self.logger.log_enter("get_view_path_constants")
+        return ViewPath.get_constants()
+
+    def startup_handler(self) -> ResponseType:
         """
         Called when pywebview is ready => when UI is loaded.
         """
         self.logger.log_enter("startup_handler")
         if self.password.previous_password_exists():
-            self.load_view(View.LOGIN)
+            self.load_view(ViewPath.LOGIN)
         else:
-            self.load_view(View.REGISTER)
+            self.load_view(ViewPath.REGISTER)
+        return Response.success("Startup successful")
 
-    def load_view(self, view: View):
+    def load_view(self, view_path: str):
         """
         Tells JS to load the given view.
         """
-        self.window.evaluate_js(f"loadView('{view.value}')")
+        self.window.evaluate_js(f"loadView('{view_path}')")
 
     def open_image_dialog(self) -> str | None:
         """
