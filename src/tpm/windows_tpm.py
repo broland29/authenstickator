@@ -1,4 +1,4 @@
-from typing import override
+from typing_extensions import override
 
 from src.logger.logger_manager import LoggerManager
 from src.tpm.abstract_tpm import AbstractTPM
