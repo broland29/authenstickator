@@ -1,12 +1,12 @@
 import json
 import os
 
-from model.config.config_manager import ConfigManager
-from model.encryptor.abstract_encryptor import AbstractEncryptor
-from model.encryptor.encryptor import Encryptor
-from model.logger.logger_manager import LoggerManager
-from model.tpm.abstract_tpm import AbstractTPM
-from model.tpm.tpm import TPM
+from src.model.config.config_manager import ConfigManager
+from src.model.encryptor.abstract_encryptor import AbstractEncryptor
+from src.model.encryptor.encryptor import Encryptor
+from src.model.logger.logger_manager import LoggerManager
+from src.model.tpm.abstract_tpm import AbstractTPM
+from src.model.tpm.tpm import TPM
 
 
 class StorageManager:

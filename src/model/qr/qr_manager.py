@@ -1,7 +1,7 @@
 import zxingcpp
 from PIL import Image
 
-from model.logger.logger_manager import LoggerManager
+from src.model.logger.logger_manager import LoggerManager
 
 
 class QRManager:

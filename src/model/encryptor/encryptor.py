@@ -1,7 +1,7 @@
 from typing_extensions import override
 
-from model.encryptor.abstract_encryptor import AbstractEncryptor
-from model.encryptor.aes_encryptor import AESEncryptor
+from src.model.encryptor.abstract_encryptor import AbstractEncryptor
+from src.model.encryptor.aes_encryptor import AESEncryptor
 
 
 class Encryptor:

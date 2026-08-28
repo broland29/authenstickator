@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING
 
-from controller.response import Response, ResponseType
-from model.config.config_manager import ConfigManager
-from model.logger.logger_manager import LoggerManager
-from model.qr.qr_manager import QRManager
-from model.storage.storage_manager import StorageManager
-from model.totp.totp_manager import TOTPManager
+from src.controller.response import Response, ResponseType
+from src.model.config.config_manager import ConfigManager
+from src.model.logger.logger_manager import LoggerManager
+from src.model.qr.qr_manager import QRManager
+from src.model.storage.storage_manager import StorageManager
+from src.model.totp.totp_manager import TOTPManager
 
 if TYPE_CHECKING:
-    from controller.master_controller import MasterController
+    from src.controller.master_controller import MasterController
 
 
 class TOTPController:

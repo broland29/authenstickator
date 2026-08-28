@@ -1,10 +1,10 @@
 import platform
 
-from model.config.config_manager import ConfigManager
-from model.logger.logger_manager import LoggerManager
-from model.tpm.abstract_tpm import AbstractTPM
-from model.tpm.no_tpm import NoTPM
-from model.tpm.windows_tpm import WindowsTPM
+from src.model.config.config_manager import ConfigManager
+from src.model.logger.logger_manager import LoggerManager
+from src.model.tpm.abstract_tpm import AbstractTPM
+from src.model.tpm.no_tpm import NoTPM
+from src.model.tpm.windows_tpm import WindowsTPM
 
 
 class TPM:

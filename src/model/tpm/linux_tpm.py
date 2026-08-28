@@ -10,9 +10,9 @@ import requests
 from tpm2_pytss import FAPI
 from typing_extensions import override
 
-from model.config.config_manager import ConfigManager
-from model.logger.logger_manager import LoggerManager
-from model.tpm.abstract_tpm import AbstractTPM
+from src.model.config.config_manager import ConfigManager
+from src.model.logger.logger_manager import LoggerManager
+from src.model.tpm.abstract_tpm import AbstractTPM
 
 
 class LinuxTPM(AbstractTPM):

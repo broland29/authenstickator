@@ -1,15 +1,15 @@
 import webview
 from webview import Window
 
-from controller.change_password_controller import ChangePasswordController
-from controller.login_controller import LoginController
-from controller.register_controller import RegisterController
-from controller.response import Response, ResponseType
-from controller.totp_controller import TOTPController
-from controller.view_path import ViewPath
-from model.config.config_manager import ConfigManager
-from model.logger.logger_manager import LoggerManager
-from model.password.password_manager import PasswordManager
+from src.controller.change_password_controller import ChangePasswordController
+from src.controller.login_controller import LoginController
+from src.controller.register_controller import RegisterController
+from src.controller.response import Response, ResponseType
+from src.controller.totp_controller import TOTPController
+from src.controller.view_path import ViewPath
+from src.model.config.config_manager import ConfigManager
+from src.model.logger.logger_manager import LoggerManager
+from src.model.password.password_manager import PasswordManager
 
 
 class MasterController:

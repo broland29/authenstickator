@@ -4,7 +4,7 @@ import sys
 from logging.handlers import RotatingFileHandler
 from typing import Final
 
-from model.config.config_manager import ConfigManager
+from src.model.config.config_manager import ConfigManager
 
 
 class LoggerManager:

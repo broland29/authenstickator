@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING
 
-from controller.response import Response, ResponseType
-from controller.view_path import ViewPath
-from model.config.config_manager import ConfigManager
-from model.logger.logger_manager import LoggerManager
-from model.password.password_manager import PasswordManager
+from src.controller.response import Response, ResponseType
+from src.controller.view_path import ViewPath
+from src.model.config.config_manager import ConfigManager
+from src.model.logger.logger_manager import LoggerManager
+from src.model.password.password_manager import PasswordManager
 
 if TYPE_CHECKING:
-    from controller.master_controller import MasterController
+    from src.controller.master_controller import MasterController
 
 
 class LoginController:

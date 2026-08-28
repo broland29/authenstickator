@@ -1,10 +1,10 @@
 import os.path
 from typing import Final
 
-from model.config.config_manager import ConfigManager
-from model.hasher.abstract_hasher import AbstractHasher
-from model.hasher.hasher import Hasher
-from model.logger.logger_manager import LoggerManager
+from src.model.config.config_manager import ConfigManager
+from src.model.hasher.abstract_hasher import AbstractHasher
+from src.model.hasher.hasher import Hasher
+from src.model.logger.logger_manager import LoggerManager
 
 
 class PasswordManager:

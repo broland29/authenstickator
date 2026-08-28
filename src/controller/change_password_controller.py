@@ -1,18 +1,18 @@
 from typing import TYPE_CHECKING
 
-from controller.response import Response
-from controller.response import ResponseType
-from model.config.config_manager import ConfigManager
-from model.encryptor.abstract_encryptor import AbstractEncryptor
-from model.encryptor.encryptor import Encryptor
-from model.logger.logger_manager import LoggerManager
-from model.password.password_manager import PasswordManager
-from model.storage.storage_manager import StorageManager
-from model.tpm.abstract_tpm import AbstractTPM
-from model.tpm.tpm import TPM
+from src.controller.response import Response
+from src.controller.response import ResponseType
+from src.model.config.config_manager import ConfigManager
+from src.model.encryptor.abstract_encryptor import AbstractEncryptor
+from src.model.encryptor.encryptor import Encryptor
+from src.model.logger.logger_manager import LoggerManager
+from src.model.password.password_manager import PasswordManager
+from src.model.storage.storage_manager import StorageManager
+from src.model.tpm.abstract_tpm import AbstractTPM
+from src.model.tpm.tpm import TPM
 
 if TYPE_CHECKING:
-    from controller.master_controller import MasterController
+    from src.controller.master_controller import MasterController
 
 
 class ChangePasswordController:

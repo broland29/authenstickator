@@ -1,7 +1,7 @@
 from typing_extensions import override
 
-from model.logger.logger_manager import LoggerManager
-from model.tpm.abstract_tpm import AbstractTPM
+from src.model.logger.logger_manager import LoggerManager
+from src.model.tpm.abstract_tpm import AbstractTPM
 
 
 class WindowsTPM(AbstractTPM):

@@ -3,9 +3,9 @@ from Crypto.Hash import SHA256
 from Crypto.Protocol.KDF import PBKDF2
 from typing_extensions import override
 
-from model.config.config_manager import ConfigManager
-from model.encryptor.abstract_encryptor import AbstractEncryptor
-from model.logger.logger_manager import LoggerManager
+from src.model.config.config_manager import ConfigManager
+from src.model.encryptor.abstract_encryptor import AbstractEncryptor
+from src.model.logger.logger_manager import LoggerManager
 
 
 class AESEncryptor(AbstractEncryptor):

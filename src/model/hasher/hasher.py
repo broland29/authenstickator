@@ -1,5 +1,5 @@
-from model.hasher.abstract_hasher import AbstractHasher
-from model.hasher.argon2_hasher import Argon2Hasher
+from src.model.hasher.abstract_hasher import AbstractHasher
+from src.model.hasher.argon2_hasher import Argon2Hasher
 
 
 class Hasher:

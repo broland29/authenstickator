@@ -2,7 +2,7 @@ from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError, VerifyMismatchError
 from typing_extensions import override
 
-from model.hasher.abstract_hasher import AbstractHasher
+from src.model.hasher.abstract_hasher import AbstractHasher
 
 
 class Argon2Hasher(AbstractHasher):

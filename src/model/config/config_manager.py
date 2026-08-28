@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Final, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from model.logger.logger_manager import LoggerManager
+    from src.model.logger.logger_manager import LoggerManager
 
 
 class ConfigManager:
