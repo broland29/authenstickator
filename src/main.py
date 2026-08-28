@@ -3,9 +3,9 @@ from pathlib import Path
 
 import webview
 
-from controller.master_controller import MasterController
-from model.config.config_manager import ConfigManager
-from model.logger.logger_manager import LoggerManager
+from src.controller.master_controller import MasterController
+from src.model.config.config_manager import ConfigManager
+from src.model.logger.logger_manager import LoggerManager
 
 
 class Main:
