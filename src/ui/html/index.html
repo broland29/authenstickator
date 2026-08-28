@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Authenstickator</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../script/loginScript.js"></script>
+    <script src="../script/changePasswordScript.js"></script>
+    <script src="../script/registerScript.js"></script>
+    <script src="../script/scriptUtils.js"></script>
+    <script src="../script/totpScript.js"></script>
+</head>
+<body>
+
+<h1>Authenstickator</h1>
+
+<div id="viewDiv">
+    Loading...
+</div>
+
+<script>
+    // Global variables loaded at startup.
+    let RESPONSE = null;
+    let VIEW_PATH = null;
+
+    // When pywebview is ready, call the startup handler.
+    window.addEventListener('pywebviewready', async function () {
+        RESPONSE = await window.pywebview.api.get_response_constants();
+        VIEW_PATH = await window.pywebview.api.get_view_path_constants();
+        await pywebview.api.startup_handler();
+    });
+</script>
+
+</body>
+</html>

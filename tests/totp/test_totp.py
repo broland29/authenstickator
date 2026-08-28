@@ -1,6 +1,6 @@
 import requests
 
-from src.totp.totp_manager import TOTPManager
+from model.totp.totp_manager import TOTPManager
 
 
 class TestTOTP:

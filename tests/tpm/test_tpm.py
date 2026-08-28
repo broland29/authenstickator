@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from src.tpm.tpm import TPM
+from model.tpm.tpm import TPM
 
 TEST_DIR = Path(__file__).parent
 

@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
-from src.config.config_manager import ConfigManager
+from model.config.config_manager import ConfigManager
 from tests.test_utils import TestUtils
 
 

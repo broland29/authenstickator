@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from src.encryptor.encryptor import Encryptor
+from model.encryptor.encryptor import Encryptor
 
 TEST_DIR = Path(__file__).parent
 

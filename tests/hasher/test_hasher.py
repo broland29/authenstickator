@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from src.hasher.hasher import Hasher
+from model.hasher.hasher import Hasher
 
 TEST_DIR = Path(__file__).parent
 

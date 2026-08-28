@@ -1,12 +1,12 @@
-from src.config.config_manager import ConfigManager
-from src.encryptor.encryptor import Encryptor
-from src.hasher.hasher import Hasher
-from src.logger.logger_manager import LoggerManager
-from src.password.password_manager import PasswordManager
-from src.qr.qr_manager import QRManager
-from src.storage.storage_manager import StorageManager
-from src.totp.totp_manager import TOTPManager
-from src.tpm.tpm import TPM
+from model.config.config_manager import ConfigManager
+from model.encryptor.encryptor import Encryptor
+from model.hasher.hasher import Hasher
+from model.logger.logger_manager import LoggerManager
+from model.password.password_manager import PasswordManager
+from model.qr.qr_manager import QRManager
+from model.storage.storage_manager import StorageManager
+from model.totp.totp_manager import TOTPManager
+from model.tpm.tpm import TPM
 
 
 class TestUtils:

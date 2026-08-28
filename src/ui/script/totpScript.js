@@ -3,7 +3,7 @@
 let totpIntervalID = null;
 
 /**
- * To be called when switching to this view, after TOTPController is fully initialized.
+ * To be called when switching to this html, after TOTPController is fully initialized.
  */
 async function initTOTP() {
     await addSecretInputListener();
@@ -143,8 +143,8 @@ async function removeSecretHandler(buttonElement) {
 
 /**
  * The changePasswordButton is a toggle. If the button's text is "Cancel", switches it to
- * "Change password" and hides the change password view. Otherwise, switches text to "Cancel" and
- * shows the change password view.
+ * "Change password" and hides the change password html. Otherwise, switches text to "Cancel" and
+ * shows the change password html.
  */
 async function changePasswordHandler() {
     const changePasswordButton = document.getElementById("changePasswordButton");

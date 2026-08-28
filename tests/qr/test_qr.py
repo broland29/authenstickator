@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from src.qr.qr_manager import QRManager
+from model.qr.qr_manager import QRManager
 
 TEST_DIR = Path(__file__).parent
 

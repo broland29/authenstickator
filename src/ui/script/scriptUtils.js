@@ -54,7 +54,7 @@ function clearMessage() {
 }
 
 /**
- * Changes the view (inside index.html) to the view at path viewPath.
+ * Changes the html (inside index.html) to the html at path viewPath.
  */
 async function loadView(viewPath) {
     // On Linux, file:// protocol, succeeds is response.ok=false, response.status=0.
@@ -74,7 +74,7 @@ async function loadView(viewPath) {
     if (viewPath.endsWith("login.html")) {
         await addPasswordInputListener();
     }
-    // The TOTP view requires extra initialization after it is loaded.
+    // The TOTP html requires extra initialization after it is loaded.
     if (viewPath.endsWith("totp.html")) {
         await initTOTP();
     }

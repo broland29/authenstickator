@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from src.storage.storage_manager import StorageManager
+from model.storage.storage_manager import StorageManager
 from tests.test_utils import TestUtils
 
 TEST_DIR = Path(__file__).parent
