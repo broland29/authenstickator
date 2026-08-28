@@ -3,11 +3,7 @@
 async function addNewPasswordInputListener() {
     const newPasswordInput = document.getElementById("newPasswordInput")
     const newPasswordButton = document.getElementById("newPasswordButton")
-    newPasswordInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            newPasswordButton.click()
-        }
-    })
+    await clickButtonIfEnter(newPasswordInput, newPasswordButton);
 }
 
 async function newPasswordHandler() {

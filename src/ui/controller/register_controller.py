@@ -27,8 +27,14 @@ class RegisterController:
 
     def new_password_handler(self, user_password) -> ResponseType:
         self.logger.log_enter("new_password_handler")
+
+        if not user_password:
+            return Response.error("New password cannot be empty.")
+
         if not self.password.set_password(user_password):
-            return Response.error("Password is not complex enough")
+            return Response.error(
+                f"New password is not acceptable. It shall have between "
+                f"{self.password.min_length} and {self.password.max_length} characters.")
 
         self.master_controller.init_with_user_password(user_password)
         return Response.success("Password is valid", ViewPath.TOTP)

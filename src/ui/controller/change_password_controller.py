@@ -49,12 +49,21 @@ class ChangePasswordController:
     def change_password_handler(self, old_password: str, new_password: str) -> ResponseType:
         self.logger.log_enter("verify_password_handler")
 
+        if not old_password and not new_password:
+            return Response.error("Old and new password cannot be empty.")
+
+        if not old_password:
+            return Response.error("Old password cannot be empty.")
+
+        if not new_password:
+            return Response.error("New password cannot be empty.")
+
         if not self.password.password_matches(old_password):
             return Response.error("Old password is incorrect. Try again.")
 
         if not self.password.set_password(new_password):
             return Response.error(
-                f"New password is not acceptable. It shall between "
+                f"New password is not acceptable. It shall have between "
                 f"{self.password.min_length} and {self.password.max_length} characters.")
 
         # Encryptor instance has to be changed, since encryption key changed.

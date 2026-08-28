@@ -6,8 +6,17 @@ let totpIntervalID = null;
  * To be called when switching to this view, after TOTPController is fully initialized.
  */
 async function initTOTP() {
+    await addSecretInputListener();
     await getAllInfo();
     await startTOTPTimer();
+}
+
+async function addSecretInputListener() {
+    const nameInput = document.getElementById("nameInput")
+    const secretInput = document.getElementById("secretInput")
+    const addSecretButton = document.getElementById("addSecretButton")
+    await clickButtonIfEnter(nameInput, addSecretButton);
+    await clickButtonIfEnter(secretInput, addSecretButton);
 }
 
 /**
@@ -154,6 +163,9 @@ async function changePasswordHandler() {
     }
     changePasswordDiv.innerHTML = await response.text();
     changePasswordButton.innerText = "Cancel";
+
+    // Add listeners here, since elements newly added.
+    await addChangePasswordInputListener();
 }
 
 /**

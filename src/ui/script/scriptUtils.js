@@ -79,3 +79,14 @@ async function loadView(viewPath) {
         await initTOTP();
     }
 }
+
+/**
+ * Adds an event listener: if enter is pressed while inside input, button is clicked.
+ */
+async function clickButtonIfEnter(input, button) {
+    input.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            button.click()
+        }
+    })
+}

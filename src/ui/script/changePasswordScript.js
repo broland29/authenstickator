@@ -1,5 +1,13 @@
 /* Scripts for changepassword.html */
 
+async function addChangePasswordInputListener() {
+    const changePasswordOldInput = document.getElementById("changePasswordOldInput")
+    const changePasswordNewInput = document.getElementById("changePasswordNewInput")
+    const changePasswordApplyButton = document.getElementById("changePasswordApplyButton")
+    await clickButtonIfEnter(changePasswordOldInput, changePasswordApplyButton);
+    await clickButtonIfEnter(changePasswordNewInput, changePasswordApplyButton);
+}
+
 async function changePasswordApplyHandler() {
     const oldPassword = document.getElementById("changePasswordOldInput").value;
     const newPassword = document.getElementById("changePasswordNewInput").value;

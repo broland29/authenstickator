@@ -27,7 +27,8 @@ class LoginController:
 
     def verify_password_handler(self, user_password) -> ResponseType:
         self.logger.log_enter("verify_password_handler")
-        if not self.password.password_matches(user_password):
+        
+        if not user_password or not self.password.password_matches(user_password):
             return Response.error("Password is incorrect. Try again.")
 
         self.master_controller.init_with_user_password(user_password)
