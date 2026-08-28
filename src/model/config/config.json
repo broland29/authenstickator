@@ -23,7 +23,7 @@
     "height": 800
   },
   "tpm": {
-    "enabled": true,
+    "enabled": false,
     "virtual": {
       "fapi_profile": "P_RSA2048SHA256",
       "fapi_profile_url": "https://raw.githubusercontent.com/tpm2-software/tpm2-tss/3.2.0/dist/fapi-profiles/P_RSA2048SHA256.json",

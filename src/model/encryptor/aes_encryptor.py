@@ -41,7 +41,6 @@ class AESEncryptor(AbstractEncryptor):
 
     @override
     def encrypt(self, plaintext: str) -> bytes:
-        return plaintext.encode()
         cipher = AES.new(
             key=self.key,
             mode=AES.MODE_EAX
@@ -51,7 +50,6 @@ class AESEncryptor(AbstractEncryptor):
 
     @override
     def decrypt(self, ciphertext: bytes) -> str:
-        return ciphertext.decode()
         nonce = ciphertext[:16]
         tag = ciphertext[16:32]
         actual_ciphertext = ciphertext[32:]
