@@ -31,5 +31,8 @@ class LoginController:
         if not user_password or not self.password.password_matches(user_password):
             return Response.error("Password is incorrect. Try again.")
 
-        self.master_controller.init_with_user_password(user_password)
+        result = self.master_controller.init_with_user_password(user_password)
+        if result["status"] == Response.STATUS_ERROR:
+            return result
+
         return Response.success("Password is correct.", ViewPath.TOTP)

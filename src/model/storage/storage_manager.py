@@ -28,6 +28,9 @@ class StorageManager:
     storage: dict[str, str]
 
     def __new__(cls, user_password: str):
+        """
+        Storage initialization. Returns None if storage decryption failed.
+        """
         if cls.instance is not None:
             return cls.instance
 
@@ -47,11 +50,10 @@ class StorageManager:
         with open(storage_file_path, "rb") as file:
             content_encrypted = file.read()
             content = cls.instance.encryptor.decrypt(content_encrypted)
+            if content is None:
+                return None
             cls.instance.storage = json.loads(content)
             return cls.instance
-
-    def __init__(self, user_password: str):
-        pass
 
     def add_secret(self, secret: str, name: str) -> bool:
         """

@@ -1,5 +1,3 @@
-from typing_extensions import override
-
 from src.model.encryptor.abstract_encryptor import AbstractEncryptor
 from src.model.encryptor.aes_encryptor import AESEncryptor
 
@@ -10,7 +8,6 @@ class Encryptor:
     """
     instance: AbstractEncryptor = None
 
-    @override
     def __new__(cls, user_password: str, salt: bytes):
         if cls.instance is not None:
             return cls.instance

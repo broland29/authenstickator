@@ -1,8 +1,21 @@
-from typing import Final, TypeAlias
+from typing import Final, TypedDict, Any
 
-SuccessType: TypeAlias = dict[str, str]
-ErrorType: TypeAlias = dict[str, str]
-ResponseType: TypeAlias = SuccessType | ErrorType
+from typing_extensions import NotRequired
+
+
+class SuccessType(TypedDict):
+    status: str
+    success_message: str
+    data: NotRequired[Any]
+    # add other expected success keys here, e.g., data: str
+
+
+class ErrorType(TypedDict):
+    status: str
+    error_message: str
+
+
+ResponseType = SuccessType | ErrorType
 
 
 class Response:

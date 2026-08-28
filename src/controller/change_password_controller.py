@@ -39,12 +39,15 @@ class ChangePasswordController:
         self.password = PasswordManager()
         self.tpm = TPM()
 
-    def init_with_user_password(self, user_password: str):
+    def init_with_user_password(self, user_password: str) -> ResponseType:
         """
         Lazy-loading storage and encryptor.
         """
         self.storage = StorageManager(user_password)
+        if self.storage is None:
+            return Response.error("Storage decryption failed.")
         self.encryptor = Encryptor(user_password, self.tpm.get_secret())
+        return Response.success("Initialization successful.")
 
     def change_password_handler(self, old_password: str, new_password: str) -> ResponseType:
         self.logger.log_enter("verify_password_handler")

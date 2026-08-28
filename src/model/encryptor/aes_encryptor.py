@@ -49,7 +49,7 @@ class AESEncryptor(AbstractEncryptor):
         return cipher.nonce + tag + ciphertext
 
     @override
-    def decrypt(self, ciphertext: bytes) -> str:
+    def decrypt(self, ciphertext: bytes) -> str | None:
         nonce = ciphertext[:16]
         tag = ciphertext[16:32]
         actual_ciphertext = ciphertext[32:]
@@ -59,4 +59,13 @@ class AESEncryptor(AbstractEncryptor):
             AES.MODE_EAX,
             nonce=nonce
         )
-        return cipher.decrypt_and_verify(actual_ciphertext, tag).decode()
+        try:
+            return cipher.decrypt_and_verify(actual_ciphertext, tag).decode()
+        except ValueError:
+            self.logger.error("Decryption failed. The fact that execution reached here probably "
+                              "means that user password is correct, but either the salt changed ("
+                              "the TPM configs were changed) or the storage was tampered. If you "
+                              "changed TPM configs, you shall undo those changes. If the file got "
+                              "tampered, you shall recover the original version. If you can't do "
+                              "any of these, you shall delete the storage file and run again.")
+            return None

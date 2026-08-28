@@ -25,8 +25,8 @@ class AbstractEncryptor(ABC):
         pass
 
     @abstractmethod
-    def decrypt(self, ciphertext: bytes) -> str:
+    def decrypt(self, ciphertext: bytes) -> str | None:
         """
-        Decrypt the ciphertext.
+        Decrypt the ciphertext. Returns None if ciphertext cannot be decrypted with the current key.
         """
         pass

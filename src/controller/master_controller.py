@@ -63,12 +63,17 @@ class MasterController:
         """
         self._window = window
 
-    def init_with_user_password(self, user_password: str):
+    def init_with_user_password(self, user_password: str) -> ResponseType:
         """
         To be called when user password provided correctly.
         """
-        self.totp.init_with_user_password(user_password)
-        self.change_password.init_with_user_password(user_password)
+        result = self.totp.init_with_user_password(user_password)
+        if result["status"] == Response.STATUS_ERROR:
+            return result
+        result = self.change_password.init_with_user_password(user_password)
+        if result["status"] == Response.STATUS_ERROR:
+            return result
+        return Response.success("Initialization successful.")
 
     def get_response_constants(self) -> dict[str, str]:
         """

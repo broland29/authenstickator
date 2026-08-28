@@ -36,5 +36,8 @@ class RegisterController:
                 f"New password is not acceptable. It shall have between "
                 f"{self.password.min_length} and {self.password.max_length} characters.")
 
-        self.master_controller.init_with_user_password(user_password)
+        result = self.master_controller.init_with_user_password(user_password)
+        if result["status"] == Response.STATUS_ERROR:
+            return result
+        
         return Response.success("Password is valid", ViewPath.TOTP)
