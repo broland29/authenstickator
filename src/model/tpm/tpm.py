@@ -26,7 +26,8 @@ class TPM:
 
         os_name = platform.system()
         if os_name == "Linux":
-            from model.tpm.linux_tpm import LinuxTPM  # the file contains Linux-specific imports!
+            from src.model.tpm.linux_tpm import \
+                LinuxTPM  # the file contains Linux-specific imports!
             cls.instance = LinuxTPM()
             return cls.instance
 
