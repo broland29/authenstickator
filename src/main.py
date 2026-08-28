@@ -16,7 +16,7 @@ class Main:
         self.config.log_config(self.logger)
 
     def main(self):
-        index_path = Path(__file__).parent / "ui" / "html" / "index.html"
+        index_path = Path(__file__).parent / "view" / "html" / "index.html"
 
         width = self.config.get("pywebview.width")
         height = self.config.get("pywebview.height")
@@ -30,9 +30,9 @@ class Main:
 
         os_name = platform.system()
         if os_name == "Linux":
-            icon = str(Path(__file__).parent / "ui" / "html" / "res" / "logo.png")
+            icon = str(Path(__file__).parent / "view" / "html" / "res" / "logo.png")
         elif os_name == "Windows":
-            icon = str(Path(__file__).parent / "ui" / "html" / "res" / "logo.ico")
+            icon = str(Path(__file__).parent / "view" / "html" / "res" / "logo.ico")
         else:
             self.logger.error(f"Icon not implemented for OS {os_name}, continuing without icon")
             icon = None
