@@ -4,16 +4,9 @@ from abc import ABC, abstractmethod
 class AbstractEncryptor(ABC):
 
     @abstractmethod
-    def __init__(self, user_password: str, salt: bytes):
+    def set_key(self, user_password: str, salt: bytes) -> None:
         """
-        Shall contain encryption key creation from user_password and salt.
-        """
-        pass
-
-    @abstractmethod
-    def reinit(self, user_password: str, salt: bytes):
-        """
-        If user_password or salt changes, encryption key shall be replaced.
+        Set the key for encryption.
         """
         pass
 

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from model.tpm.tpm import TPM
+from src.model.tpm.tpm import TPM
 
 TEST_DIR = Path(__file__).parent
 
@@ -18,7 +18,6 @@ class TestTPM:
 
     def test_tpm(self, stub_config):
         tpm = TPM()
-        tpm.setup_secret()
         secret1 = tpm.get_secret()
         secret2 = tpm.get_secret()
         assert secret1 == secret2

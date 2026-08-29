@@ -1,9 +1,9 @@
 {
-  "hasher": {
-    "type": "ARGON2"
-  },
   "logger": {
     "log_level": "DEBUG",
     "log_file_path": "log.txt"
+  },
+  "hasher": {
+    "type": "ARGON2"
   }
 }

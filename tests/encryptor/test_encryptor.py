@@ -2,8 +2,6 @@ from pathlib import Path
 
 import pytest
 
-from model.encryptor.encryptor import Encryptor
-
 TEST_DIR = Path(__file__).parent
 
 
@@ -14,11 +12,8 @@ class TestEncryptor:
     """
     Encryptor unit tests.
     """
-    USER_PASSWORD = "DummyPassword"
-    SALT = ("A" * 16).encode()
 
-    def test_encryptor(self, stub_config):
-        encryptor = Encryptor(self.USER_PASSWORD, self.SALT)
+    def test_encryptor(self, encryptor, stub_config):
         original = "For I was conscious that I knew practically nothing..."
         encrypted = encryptor.encrypt(original)
         decrypted = encryptor.decrypt(encrypted)

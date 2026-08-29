@@ -3,10 +3,7 @@ import os
 
 from src.model.config.config_manager import ConfigManager
 from src.model.encryptor.abstract_encryptor import AbstractEncryptor
-from src.model.encryptor.encryptor import Encryptor
 from src.model.logger.logger_manager import LoggerManager
-from src.model.tpm.abstract_tpm import AbstractTPM
-from src.model.tpm.tpm import TPM
 
 
 class StorageManager:
@@ -23,22 +20,25 @@ class StorageManager:
     instance = None
     logger: LoggerManager
     config: ConfigManager
-    tpm: AbstractTPM
     encryptor: AbstractEncryptor
     storage: dict[str, str]
 
-    def __new__(cls, user_password: str):
+    def __new__(cls, encryptor):
         """
         Storage initialization. Returns None if storage decryption failed.
+
+        While Storage is a singleton, encryptor is set at each call, since it might change (if
+        encryption key changes), and in practice, each time the constructor is called, key changed.
         """
         if cls.instance is not None:
+            cls.instance.encryptor = encryptor
+            cls.instance.save()  # re-encrypt (re-save) storage file, since encryptor changed
             return cls.instance
 
         cls.instance = super().__new__(cls)
         cls.instance.logger = LoggerManager()
         cls.instance.config = ConfigManager()
-        cls.instance.tpm = TPM()
-        cls.instance.encryptor = Encryptor(user_password, cls.instance.tpm.get_secret())
+        cls.instance.encryptor = encryptor
 
         storage_file_path = cls.instance.config.get("storage.storage_file_path")
 
@@ -50,8 +50,9 @@ class StorageManager:
         with open(storage_file_path, "rb") as file:
             content_encrypted = file.read()
             content = cls.instance.encryptor.decrypt(content_encrypted)
-            if content is None:
-                return None
+            if content is None:  # storage decryption failed
+                cls.instance = None
+                return cls.instance
             cls.instance.storage = json.loads(content)
             return cls.instance
 

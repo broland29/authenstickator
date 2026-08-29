@@ -1,13 +1,13 @@
 {
-  "encryptor": {
-    "type": "AES"
-  },
   "logger": {
     "log_level": "DEBUG",
     "log_file_path": "log.txt"
   },
+  "encryptor": {
+    "type": "AES"
+  },
   "storage": {
-    "storage_file_path": "storage.txt"
+    "storage_file_path": "test-storage.txt"
   },
   "tpm": {
     "enabled": false

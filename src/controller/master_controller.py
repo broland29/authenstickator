@@ -2,14 +2,18 @@ import webview
 from webview import Window
 
 from src.controller.change_password_controller import ChangePasswordController
+from src.controller.errors import Errors
 from src.controller.login_controller import LoginController
 from src.controller.register_controller import RegisterController
 from src.controller.response import Response, ResponseType
 from src.controller.totp_controller import TOTPController
 from src.controller.view_path import ViewPath
 from src.model.config.config_manager import ConfigManager
+from src.model.encryptor.encryptor import Encryptor
 from src.model.logger.logger_manager import LoggerManager
 from src.model.password.password_manager import PasswordManager
+from src.model.storage.storage_manager import StorageManager
+from src.model.tpm.tpm import TPM
 
 
 class MasterController:
@@ -35,7 +39,6 @@ class MasterController:
     login: LoginController
     register: RegisterController
     totp: TOTPController
-    password: PasswordManager
     _window: Window
 
     def __init__(self):
@@ -55,7 +58,6 @@ class MasterController:
         self.login = LoginController(self)
         self.register = RegisterController(self)
         self.totp = TOTPController(self)
-        self.password = PasswordManager()
 
     def set_window(self, window: Window):
         """
@@ -65,14 +67,32 @@ class MasterController:
 
     def init_with_user_password(self, user_password: str) -> ResponseType:
         """
-        To be called when user password provided correctly.
+        Updates encryptor and storage due to user password change.
+
+        Shall be called at each user password change. Change, in this context,  means that it was
+        either provided for registration and accepted, provided for login and accepted, or it was
+        actually changed and accepted.
         """
-        result = self.totp.init_with_user_password(user_password)
-        if result["status"] == Response.STATUS_ERROR:
-            return result
-        result = self.change_password.init_with_user_password(user_password)
-        if result["status"] == Response.STATUS_ERROR:
-            return result
+        self._logger.log_enter("init_with_user_password")
+
+        # Retrieve TPM secret.
+        tpm = TPM()
+        if tpm is None:
+            return Response.error("Encountered a TPM error. Try provisioning or disabling TPM.")
+        tpm_secret = tpm.get_secret()
+        if tpm_secret is None:
+            return Response.error("Encountered a TPM error. Try provisioning or disabling TPM.")
+
+        # Update encryptor since user password changed.
+        encryptor = Encryptor(user_password, tpm_secret)
+
+        # Update storage since encryptor changed. Implicitly re-encrypts (re-saved) storage file.
+        storage = StorageManager(encryptor)
+        if storage is None:
+            return Response.error(Errors.ERROR_DECRYPT)
+
+        self.totp.init(storage)
+
         return Response.success("Initialization successful.")
 
     def get_response_constants(self) -> dict[str, str]:
@@ -84,7 +104,7 @@ class MasterController:
 
     def get_view_path_constants(self) -> dict[str, str]:
         """
-        Method which sends html path constants to UI upon startup.
+        Method which sends HTML path constants to UI upon startup.
         """
         self._logger.log_enter("get_view_path_constants")
         return ViewPath.get_constants()
@@ -94,7 +114,8 @@ class MasterController:
         Called when pywebview is ready => when UI is loaded.
         """
         self._logger.log_enter("startup_handler")
-        if self.password.previous_password_exists():
+        password = PasswordManager()
+        if password.previous_password_exists():
             self.load_view(ViewPath.LOGIN)
         else:
             self.load_view(ViewPath.REGISTER)

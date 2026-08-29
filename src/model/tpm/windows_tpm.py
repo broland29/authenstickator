@@ -16,9 +16,9 @@ class WindowsTPM(AbstractTPM):
         self.logger.info("WindowsTPM initialized.")
 
     @override
-    def setup_secret(self) -> None:
-        pass
+    def setup_secret(self) -> bytes | None:
+        return b"A" * 16
 
     @override
-    def get_secret(self) -> bytes:
+    def get_secret(self) -> bytes | None:
         return b"A" * 16

@@ -136,6 +136,9 @@ button:active {
 }
 
 .password-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
     margin-top: 10vh;
 }
 

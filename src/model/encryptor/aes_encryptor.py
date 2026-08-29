@@ -16,13 +16,12 @@ class AESEncryptor(AbstractEncryptor):
     config: ConfigManager
     key: bytes
 
-    def __init__(self, user_password: str, salt: bytes):
+    def __init__(self):
         self.logger = LoggerManager()
         self.config = ConfigManager()
-        self.reinit(user_password, salt)
 
     @override
-    def reinit(self, user_password: str, salt: bytes):
+    def set_key(self, user_password: str, salt: bytes) -> None:
         # With the help of the PBKDF2, the user password is combined with the salt and yields a 32
         # byte key, which is accepted by AES. This way, there is no need to restrict user_password
         # to specific exact lengths, and the salt is combined with the user_password in a standard,
@@ -37,7 +36,6 @@ class AESEncryptor(AbstractEncryptor):
             count=600_000,
             hmac_hash_module=SHA256
         )
-        self.logger.info("AESEncryptor initialized.")
 
     @override
     def encrypt(self, plaintext: str) -> bytes:
@@ -64,8 +62,9 @@ class AESEncryptor(AbstractEncryptor):
         except ValueError:
             self.logger.error("Decryption failed. The fact that execution reached here probably "
                               "means that user password is correct, but either the salt changed ("
-                              "the TPM configs were changed) or the storage was tampered. If you "
-                              "changed TPM configs, you shall undo those changes. If the file got "
-                              "tampered, you shall recover the original version. If you can't do "
-                              "any of these, you shall delete the storage file and run again.")
+                              "the TPM configs were changed) or the storage was tampered with. If "
+                              "you changed TPM configs, you shall undo those changes. If the file "
+                              "was tampered with, you shall recover the original version. If you "
+                              "can't do any of these, you shall delete the storage file and run "
+                              "again.")
             return None

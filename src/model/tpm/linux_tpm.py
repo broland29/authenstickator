@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Final
 
 import requests
-from tpm2_pytss import FAPI
+from tpm2_pytss import FAPI, TSS2_Exception
 from typing_extensions import override
 
 from src.model.config.config_manager import ConfigManager
@@ -33,6 +33,9 @@ class LinuxTPM(AbstractTPM):
     """Secret is stored in NVRAM at a location abstractized by this key."""
 
     def __init__(self):
+        """
+        Might raise TSS2_Exception.
+        """
         self.config = ConfigManager()
         self.logger = LoggerManager()
         virtual = self.config.get("tpm.virtual.enabled")
@@ -41,27 +44,34 @@ class LinuxTPM(AbstractTPM):
             self.start_tpm_virtual()
             self.provision_fapi_virtual()
         self.setup_secret()
-        self.logger.info("LinuxTPM initialized.")
 
     @override
-    def setup_secret(self) -> None:
-        with FAPI() as fapi:
-            tpm_paths = fapi.list("/")
-            if any(tpm_path.endswith(self.NV_PATH) for tpm_path in tpm_paths):
-                self.logger.info("Secret setup skipped since it already exists.")
-                return
+    def setup_secret(self) -> bytes | None:
+        try:
+            with FAPI() as fapi:
+                tpm_paths = fapi.list("/")
+                if any(tpm_path.endswith(self.NV_PATH) for tpm_path in tpm_paths):
+                    self.logger.info("Secret setup skipped since it already exists.")
 
-            random_bytes = fapi.get_random(16)
-            fapi.create_nv(self.NV_PATH, 16, exists_ok=True)
-            fapi.nv_write(self.NV_PATH, random_bytes)
-        self.logger.info("Secret setup successful.")
+                random_bytes = fapi.get_random(16)
+                fapi.create_nv(self.NV_PATH, 16, exists_ok=True)
+                fapi.nv_write(self.NV_PATH, random_bytes)
+                self.logger.info("Secret setup successful.")
+                return random_bytes
+        except TSS2_Exception as e:
+            self.logger.error(f"Secret setup failed. FAPI threw exception {e}.")
+            return None
 
     @override
-    def get_secret(self) -> bytes:
-        with FAPI() as fapi:
-            secret = fapi.nv_read(self.NV_PATH)[0]
-        self.logger.info("Secret retrieval successful.")
-        return secret
+    def get_secret(self) -> bytes | None:
+        try:
+            with FAPI() as fapi:
+                secret = fapi.nv_read(self.NV_PATH)[0]
+                self.logger.info("Secret retrieval successful.")
+                return secret
+        except TSS2_Exception as e:
+            self.logger.error(f"Secret retrieval failed. FAPI threw exception {e}.")
+            return None
 
     def setup_fapi_virtual(self):
         fapi_dir = Path.home() / ".local" / "share" / "authenstickator"

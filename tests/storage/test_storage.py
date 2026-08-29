@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pytest
 
-from model.storage.storage_manager import StorageManager
 from tests.test_utils import TestUtils
 
 TEST_DIR = Path(__file__).parent
@@ -16,11 +15,11 @@ class TestStorage:
     """
     Storage unit tests. Uses Encryptor and TPM, so those unit tests shall pass first.
     """
+
     USER_PASSWORD = "DummyPassword"
 
-    def test_storage_persistence(self, cleanup_storage, stub_config, cleanup_singletons):
+    def test_storage_persistence(self, storage, stub_config):
         # First session: a secret added.
-        storage = StorageManager(self.USER_PASSWORD)
         secret = "I65VU7K5ZQL7WB4E"
         name = "Authentication Test"
 
@@ -28,13 +27,13 @@ class TestStorage:
         assert (storage.get_secret(name) == secret)
 
         # Second session: the secret shall still be there.
+        # To simulate a new session, singletons are cleared and storage is reinitialized with the
+        # same values as initially, but the storage file is not cleaned up.
         TestUtils.cleanup_singletons()
-        storage = StorageManager(self.USER_PASSWORD)
+        storage = TestUtils.storage()  # same storage as the initial
         assert (storage.get_secret(name) == secret)
 
-    def test_storage_delete(self, cleanup_storage, stub_config):
-        storage = StorageManager(self.USER_PASSWORD)
-
+    def test_storage_delete(self, storage, stub_config):
         storage.add_secret("sec1", "nam1")
         assert storage.get_storage() == {"nam1": "sec1"}
 
@@ -44,17 +43,13 @@ class TestStorage:
         storage.remove_secret("nam1")
         assert storage.get_storage() == {"nam2": "sec2"}
 
-    def test_storage_add_duplicate_name(self, cleanup_storage, stub_config):
-        storage = StorageManager(self.USER_PASSWORD)
-
+    def test_storage_add_duplicate_name(self, storage, stub_config):
         storage.add_secret("sec1", "nam1")
         assert storage.get_storage() == {"nam1": "sec1"}
 
         assert storage.add_secret("sec2", "nam1") == False
         assert storage.get_storage() == {"nam1": "sec1"}
 
-    def test_storage_get_nonexistent(self, cleanup_storage, stub_config):
-        storage = StorageManager(self.USER_PASSWORD)
-
+    def test_storage_get_nonexistent(self, storage, stub_config):
         assert storage.get_secret("nam1") is None
         assert storage.get_storage() == {}

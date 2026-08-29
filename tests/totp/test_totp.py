@@ -1,8 +1,14 @@
+from pathlib import Path
+
+import pytest
 import requests
 
-from model.totp.totp_manager import TOTPManager
+from src.model.totp.totp_manager import TOTPManager
+
+TEST_DIR = Path(__file__).parent
 
 
+@pytest.mark.parametrize("stub_config", [TEST_DIR / "test-config-totp.json"], indirect=True)
 class TestTOTP:
     def test_generate_code(self):
         """

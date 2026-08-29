@@ -34,14 +34,11 @@ class TOTPController:
         self.totp = TOTPManager()
         self.qr = QRManager()
 
-    def init_with_user_password(self, user_password: str) -> ResponseType:
+    def init(self, storage):
         """
         Lazy-loading storage.
         """
-        self.storage = StorageManager(user_password)
-        if self.storage is None:
-            return Response.error("Storage decryption failed.")
-        return Response.success("Initialization successful")
+        self.storage = storage
 
     def get_info(self, name, secret=None) -> dict | None:
         """

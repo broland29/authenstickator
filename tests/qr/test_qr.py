@@ -1,10 +1,13 @@
 from pathlib import Path
 
-from model.qr.qr_manager import QRManager
+import pytest
+
+from src.model.qr.qr_manager import QRManager
 
 TEST_DIR = Path(__file__).parent
 
 
+@pytest.mark.parametrize("stub_config", [TEST_DIR / "test-config-qr.json"], indirect=True)
 class TestQR:
     def test_qr_authentication_test(self):
         """

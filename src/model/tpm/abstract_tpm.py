@@ -10,15 +10,16 @@ class AbstractTPM(ABC):
     """
 
     @abstractmethod
-    def setup_secret(self) -> None:
+    def setup_secret(self) -> bytes | None:
         """
-        Generate a secret (random number) through the TPM and store it in its NVRAM.
+        Generate a secret (random number) through the TPM and store it in its NVRAM. Also returns
+        the secret, or None on failure.
         """
         pass
 
     @abstractmethod
-    def get_secret(self) -> bytes:
+    def get_secret(self) -> bytes | None:
         """
-        Retrieve the previously generated and stored secret from TPM.
+        Retrieve the previously generated and stored secret from TPM. Returns None on failure.
         """
         pass

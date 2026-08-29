@@ -3,13 +3,8 @@ from typing import TYPE_CHECKING
 from src.controller.response import Response
 from src.controller.response import ResponseType
 from src.model.config.config_manager import ConfigManager
-from src.model.encryptor.abstract_encryptor import AbstractEncryptor
-from src.model.encryptor.encryptor import Encryptor
 from src.model.logger.logger_manager import LoggerManager
 from src.model.password.password_manager import PasswordManager
-from src.model.storage.storage_manager import StorageManager
-from src.model.tpm.abstract_tpm import AbstractTPM
-from src.model.tpm.tpm import TPM
 
 if TYPE_CHECKING:
     from src.controller.master_controller import MasterController
@@ -23,31 +18,12 @@ class ChangePasswordController:
     config: ConfigManager
     master_controller: "MasterController"
     password: PasswordManager
-    tpm: AbstractTPM
-    encryptor: AbstractEncryptor
-    storage: StorageManager
 
     def __init__(self, master_controller: "MasterController"):
-        """
-        Storage and encryptor can be loaded only after user password is provided.
-        Class has to be initialized before user password available to register for JS API.
-        Rest of the initialization in init_with_user_password.
-        """
         self.logger = LoggerManager()
         self.config = ConfigManager()
         self.master_controller = master_controller
         self.password = PasswordManager()
-        self.tpm = TPM()
-
-    def init_with_user_password(self, user_password: str) -> ResponseType:
-        """
-        Lazy-loading storage and encryptor.
-        """
-        self.storage = StorageManager(user_password)
-        if self.storage is None:
-            return Response.error("Storage decryption failed.")
-        self.encryptor = Encryptor(user_password, self.tpm.get_secret())
-        return Response.success("Initialization successful.")
 
     def change_password_handler(self, old_password: str, new_password: str) -> ResponseType:
         self.logger.log_enter("verify_password_handler")
@@ -69,10 +45,8 @@ class ChangePasswordController:
                 f"New password is not acceptable. It shall have between "
                 f"{self.password.min_length} and {self.password.max_length} characters.")
 
-        # Encryptor instance has to be changed, since encryption key changed.
-        self.encryptor.reinit(new_password, self.tpm.get_secret())
-
-        # The storage has to be re-encrypted, since encryption key changed.
-        self.storage.save()
+        result = self.master_controller.init_with_user_password(new_password)
+        if result["status"] != Response.STATUS_SUCCESS:
+            return result
 
         return Response.success("Password changed successfully.")

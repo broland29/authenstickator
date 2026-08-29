@@ -1,13 +1,13 @@
 {
+  "logger": {
+    "log_level": "DEBUG",
+    "log_file_path": "log.txt"
+  },
   "encryptor": {
     "type": "AES"
   },
   "hasher": {
     "type": "ARGON2"
-  },
-  "logger": {
-    "log_level": "DEBUG",
-    "log_file_path": "log.txt"
   },
   "password": {
     "min_length": 15,
