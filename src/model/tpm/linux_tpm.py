@@ -52,6 +52,7 @@ class LinuxTPM(AbstractTPM):
                 tpm_paths = fapi.list("/")
                 if any(tpm_path.endswith(self.NV_PATH) for tpm_path in tpm_paths):
                     self.logger.info("Secret setup skipped since it already exists.")
+                    return self.get_secret()
 
                 random_bytes = fapi.get_random(16)
                 fapi.create_nv(self.NV_PATH, 16, exists_ok=True)
